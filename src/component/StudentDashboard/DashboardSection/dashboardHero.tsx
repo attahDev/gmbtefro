@@ -1,12 +1,94 @@
 import { ArrowRight, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from "../../../contexts/mainuseAuth";
+import { useApiGet } from '../hooks/useApiGet';
+import { useCountdown } from '../hooks/useCountdown';
+import { InlineSkeleton } from '../shared/CardSkeleton';
 
 const cardClass =
   "block bg-[#FFFDF7] rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#001F3F]";
 
+interface RecentActivityItem {
+  id: string;
+  type: string;
+  message: string;
+  createdAt: string;
+}
+
+interface MentorshipSummary {
+  mentorName: string;
+  mentorRole: string;
+  mentorAvatar: string | null;
+  sessionsCompleted: number;
+  nextSessionAt: string | null;
+}
+
+interface DashboardSummary {
+  badgesThisMonth: number;
+  activeMentors: number;
+  newOpportunities: number;
+  coursesCompleted: number;
+  eventsThisMonth: number;
+  recentActivity: RecentActivityItem[];
+  mentorship: MentorshipSummary | null;
+}
+
+const EMPTY_SUMMARY: DashboardSummary = {
+  badgesThisMonth: 0,
+  activeMentors: 0,
+  newOpportunities: 0,
+  coursesCompleted: 0,
+  eventsThisMonth: 0,
+  recentActivity: [],
+  mentorship: null,
+};
+
+function timeAgo(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function CountdownBlock({ nextSessionAt }: { nextSessionAt: string | null }) {
+  const countdown = useCountdown(nextSessionAt);
+
+  if (!nextSessionAt || !countdown) {
+    return <p className="text-xs sm:text-sm text-gray-500">No session scheduled yet.</p>;
+  }
+
+  if (countdown.isPast) {
+    return <p className="text-xs sm:text-sm text-gray-500">Your session time has passed — check your messages for updates.</p>;
+  }
+
+  return (
+    <div className="flex gap-3 sm:gap-4">
+      {[
+        { label: "Days", value: countdown.days },
+        { label: "Hrs", value: countdown.hours },
+        { label: "Mins", value: countdown.minutes },
+        { label: "Sec", value: countdown.seconds },
+      ].map((unit, i) => (
+        <div className="flex items-center gap-3 sm:gap-4" key={unit.label}>
+          {i > 0 && <div className="text-gray-400">:</div>}
+          <div className="text-center">
+            <div className="text-xs font-bold text-[#AF1B2E]">{unit.value}</div>
+            <div className="text-xs text-gray-500">{unit.label}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DashboardHero() {
-   const {user} = useAuth();
+  const { user } = useAuth();
+  const { data: summary, loading } = useApiGet<DashboardSummary>('/dashboard/summary', EMPTY_SUMMARY);
+  const s = summary ?? EMPTY_SUMMARY;
 
   return (
     <div className="bg-[#FFFDF7] p-4 sm:p-6 lg:p-8">
@@ -31,7 +113,13 @@ export default function DashboardHero() {
                     </svg>
                   </span>
                   <span className="text-xs sm:text-sm text-[#FFFFFF] leading-tight">
-                    You've earned 3 new badges this month
+                    {loading ? (
+                      <InlineSkeleton className="bg-white/30" />
+                    ) : s.badgesThisMonth > 0 ? (
+                      `You've earned ${s.badgesThisMonth} new badge${s.badgesThisMonth === 1 ? "" : "s"} this month`
+                    ) : (
+                      "No badges earned yet — keep going!"
+                    )}
                   </span>
                 </div>
               </div>
@@ -68,12 +156,27 @@ export default function DashboardHero() {
               <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Your network of industry mentors.</p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500 border-2 border-white"></div>
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500 border-2 border-white"></div>
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-500 border-2 border-white"></div>
-                  </div>
-                  <span className="text-xs sm:text-sm font-semibold text-gray-900">3 active Mentors</span>
+                  {s.activeMentors > 0 && (
+                    <div className="flex -space-x-2">
+                      {Array.from({ length: Math.min(s.activeMentors, 3) }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white ${
+                            ["bg-blue-500", "bg-green-500", "bg-purple-500"][i % 3]
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                    {loading ? (
+                      <InlineSkeleton />
+                    ) : s.activeMentors > 0 ? (
+                      `${s.activeMentors} active mentor${s.activeMentors === 1 ? "" : "s"}`
+                    ) : (
+                      "No mentors yet"
+                    )}
+                  </span>
                 </div>
                 <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Browse Mentors</span>
               </div>
@@ -93,7 +196,9 @@ export default function DashboardHero() {
               <h3 className="text-lg sm:text-xl font-bold text-[#001F3F] mb-2">New Opportunities</h3>
               <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Opportunities matched to you</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs sm:text-sm font-semibold text-gray-900">4 New Openings</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                  {loading ? <InlineSkeleton /> : s.newOpportunities > 0 ? `${s.newOpportunities} New Openings` : "No new openings"}
+                </span>
                 <span className="text-xs sm:text-sm text-gray-600">View Jobs</span>
               </div>
             </Link>
@@ -113,7 +218,9 @@ export default function DashboardHero() {
               <h3 className="text-lg sm:text-xl font-bold text-[#001F3F] mb-2">Training Courses</h3>
               <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Your active learning programs</p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <span className="text-xs sm:text-sm font-semibold text-gray-900">Completed 3 Courses</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                  {loading ? <InlineSkeleton /> : s.coursesCompleted > 0 ? `Completed ${s.coursesCompleted} Course${s.coursesCompleted === 1 ? "" : "s"}` : "No courses completed yet"}
+                </span>
                 <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">Continue Learning</span>
               </div>
             </Link>
@@ -134,7 +241,9 @@ export default function DashboardHero() {
               <h3 className="text-lg sm:text-xl font-bold text-[#001F3F] mb-2">Events Joined</h3>
               <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Recent event and programs participation</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs sm:text-sm font-semibold text-gray-900">8 This Month</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                  {loading ? <InlineSkeleton /> : s.eventsThisMonth > 0 ? `${s.eventsThisMonth} This Month` : "None this month"}
+                </span>
                 <span className="text-xs sm:text-sm text-gray-600">View Events</span>
               </div>
             </Link>
@@ -154,35 +263,27 @@ export default function DashboardHero() {
             <p className="text-xs sm:text-sm text-[#6B7280] mb-4 sm:mb-6">Your latest actions and updates</p>
 
             <div className="space-y-4 sm:space-y-6">
-              <div className="flex gap-3">
-                <div className="w-2 h-2 bg-[#D7263D] rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-xs sm:text-sm text-[#6B7280]">
-                    Applied to <span className="text-[#001F3F]">Junior Developer at Manchester Digital</span>
-                  </p>
-                  <p className="text-xs text-[#6B7280] mt-1">2 hours ago</p>
+              {loading ? (
+                <div className="space-y-3" aria-hidden="true">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-4 w-full animate-pulse rounded bg-gray-100" />
+                  ))}
                 </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="w-2 h-2 bg-[#D7263D] rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-xs sm:text-sm text-[#6B7280]">
-                    Completed <span className="text-[#001F3F]">React Fundamentals Course</span>
-                  </p>
-                  <p className="text-xs text-[#6B7280] mt-1">1 day ago</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="w-2 h-2 bg-[#D7263D] rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-xs sm:text-sm text-[#6B7280]">
-                    Attended <span className="text-[#001F3F]">AI Workshop at University of Manchester</span>
-                  </p>
-                  <p className="text-xs text-[#6B7280] mt-1">3 days ago</p>
-                </div>
-              </div>
+              ) : s.recentActivity.length === 0 ? (
+                <p className="text-xs sm:text-sm text-[#6B7280]">
+                  Nothing here yet — apply to a job, complete a course, or connect with a mentor to see it show up here.
+                </p>
+              ) : (
+                s.recentActivity.map((item) => (
+                  <div className="flex gap-3" key={item.id}>
+                    <div className="w-2 h-2 bg-[#D7263D] rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="text-xs sm:text-sm text-[#6B7280]">{item.message}</p>
+                      <p className="text-xs text-[#6B7280] mt-1">{timeAgo(item.createdAt)}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             <Link
@@ -193,64 +294,64 @@ export default function DashboardHero() {
             </Link>
 
             {/* My Mentorship Activity Card */}
-            <Link
-              to="/dashboard/community"
-              className="block bg-[#FFD7000D] rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-sm border mt-6 sm:mt-10 border-yellow-100 hover:shadow-md transition-shadow"
-            >
+            <div className="block bg-[#FFD7000D] rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-sm border mt-6 sm:mt-10 border-yellow-100">
               <h3 className="text-lg sm:text-xl font-semibold text-[#001F3F] mb-4 sm:mb-6">My Mentorship Activity</h3>
 
-              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <img
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus"
-                  alt="Marcus Victor"
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
-                />
-                <div>
-                  <h4 className="font-bold text-sm sm:text-base text-[#001F3F]">Marcus Victor</h4>
-                  <p className="text-xs sm:text-sm text-gray-600">Product Designer, Code Nation</p>
-                  <div className="flex gap-0.5 mt-1">
-                    <span className="text-[#AF1B2E] text-sm">★</span>
-                    <span className="text-[#AF1B2E] text-sm">★</span>
-                    <span className="text-[#AF1B2E] text-sm">★</span>
-                    <span className="text-[#AF1B2E] text-sm">★</span>
-                    <span className="text-[#AF1B2E] text-sm">★</span>
-                  </div>
+              {loading ? (
+                <div className="space-y-3" aria-hidden="true">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 animate-pulse" />
+                  <div className="h-4 w-1/2 rounded bg-gray-100 animate-pulse" />
                 </div>
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm text-gray-600">Sessions completed</span>
-                  <span className="text-xl sm:text-2xl font-bold text-gray-900">3</span>
+              ) : !s.mentorship ? (
+                <div className="text-center">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                    You haven't connected with a mentor yet. Find one who matches your goals to get started.
+                  </p>
+                  <Link
+                    to="/dashboard/community"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#D7263D] px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-[#b91f33]"
+                  >
+                    Find a Mentor <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
-
-                <div>
-                  <div className="text-xs sm:text-sm text-gray-600 mb-2">Next session</div>
-                  <div className="text-sm sm:text-base font-semibold text-gray-900 mb-2">Nov 5, 2:00 PM</div>
-                  <div className="flex gap-3 sm:gap-4">
-                    <div className="text-center">
-                      <div className="text-xs font-bold text-[#AF1B2E]">10</div>
-                      <div className="text-xs text-gray-500">Days</div>
-                    </div>
-                    <div className="text-gray-400">:</div>
-                    <div className="text-center">
-                      <div className="text-xs font-bold text-[#AF1B2E]">12</div>
-                      <div className="text-xs text-gray-500">Hrs</div>
-                    </div>
-                    <div className="text-gray-400">:</div>
-                    <div className="text-center">
-                      <div className="text-xs font-bold text-[#AF1B2E]">54</div>
-                      <div className="text-xs text-gray-500">Mins</div>
-                    </div>
-                    <div className="text-gray-400">:</div>
-                    <div className="text-center">
-                      <div className="text-xs font-bold text-[#AF1B2E]">19</div>
-                      <div className="text-xs text-gray-500">Sec</div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <img
+                      src={s.mentorship.mentorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(s.mentorship.mentorName)}`}
+                      alt={s.mentorship.mentorName}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
+                    />
+                    <div>
+                      <h4 className="font-bold text-sm sm:text-base text-[#001F3F]">{s.mentorship.mentorName}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">{s.mentorship.mentorRole}</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </Link>
+
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs sm:text-sm text-gray-600">Sessions completed</span>
+                      <span className="text-xl sm:text-2xl font-bold text-gray-900">{s.mentorship.sessionsCompleted}</span>
+                    </div>
+
+                    <div>
+                      <div className="text-xs sm:text-sm text-gray-600 mb-2">Next session</div>
+                      {s.mentorship.nextSessionAt ? (
+                        <div className="text-sm sm:text-base font-semibold text-gray-900 mb-2">
+                          {new Date(s.mentorship.nextSessionAt).toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      ) : null}
+                      <CountdownBlock nextSessionAt={s.mentorship.nextSessionAt} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

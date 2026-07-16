@@ -1,36 +1,31 @@
 import React, { type JSX } from "react";
 import type { SVGProps } from "react";
+import { useApiGet } from "../hooks/useApiGet";
 
-type Metric = {
-  value: string | number;
-  label: string;
-};
+type Metric = { value: string | number; label: string };
+type Resource = { id: string; title: string; href: string; kind?: "doc" | "video" | "course" };
 
-type Resource = {
-  id: string;
-  title: string;
-  href?: string;
-  kind?: "doc" | "video" | "course";
-};
+interface MentorStats {
+  skillsDeveloped: number;
+  totalSessions: number;
+  networkGrowth: number;
+  careerReadinessPercent: number;
+}
+interface MyMentorEntry {
+  status: "PENDING" | "ACTIVE" | "COMPLETED" | "DECLINED";
+  nextSessionAt: string | null;
+}
 
+const EMPTY_STATS: MentorStats = { skillsDeveloped: 0, totalSessions: 0, networkGrowth: 0, careerReadinessPercent: 0 };
 
 const IconDoc = (props: SVGProps<SVGSVGElement>) => (
-  <svg  {...props} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.0003 1.33325H4.00033C3.6467 1.33325 3.30756 1.47373 3.05752 1.72378C2.80747 1.97382 2.66699 2.31296 2.66699 2.66659V13.3333C2.66699 13.6869 2.80747 14.026 3.05752 14.2761C3.30756 14.5261 3.6467 14.6666 4.00033 14.6666H12.0003C12.3539 14.6666 12.6931 14.5261 12.9431 14.2761C13.1932 14.026 13.3337 13.6869 13.3337 13.3333V4.66659L10.0003 1.33325Z" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  <path d="M9.33301 1.33325V3.99992C9.33301 4.35354 9.47348 4.69268 9.72353 4.94273C9.97358 5.19278 10.3127 5.33325 10.6663 5.33325H13.333" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  <path d="M6.66634 6H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  <path d="M10.6663 8.66675H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  <path d="M10.6663 11.3333H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg {...props} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10.0003 1.33325H4.00033C3.6467 1.33325 3.30756 1.47373 3.05752 1.72378C2.80747 1.97382 2.66699 2.31296 2.66699 2.66659V13.3333C2.66699 13.6869 2.80747 14.026 3.05752 14.2761C3.30756 14.5261 3.6467 14.6666 4.00033 14.6666H12.0003C12.3539 14.6666 12.6931 14.5261 12.9431 14.2761C13.1932 14.026 13.3337 13.6869 13.3337 13.3333V4.66659L10.0003 1.33325Z" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M9.33301 1.33325V3.99992C9.33301 4.35354 9.47348 4.69268 9.72353 4.94273C9.97358 5.19278 10.3127 5.33325 10.6663 5.33325H13.333" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M6.66634 6H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10.6663 8.66675H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10.6663 11.3333H5.33301" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
-  
-);
-
-const IconVideo = (props: SVGProps<SVGSVGElement>) => (
-  <svg {...props}  width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.667 8.66676L14.149 10.9881C14.1992 11.0215 14.2575 11.0407 14.3177 11.0435C14.378 11.0464 14.4378 11.0329 14.491 11.0045C14.5441 10.976 14.5886 10.9337 14.6196 10.8819C14.6506 10.8302 14.667 10.7711 14.667 10.7108V5.24676C14.667 5.18811 14.6516 5.13049 14.6222 5.07973C14.5928 5.02896 14.5506 4.98684 14.4997 4.95763C14.4488 4.92841 14.3912 4.91313 14.3325 4.91333C14.2739 4.91353 14.2163 4.9292 14.1657 4.95876L10.667 7.0001" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  <path d="M9.33301 4H2.66634C1.92996 4 1.33301 4.59695 1.33301 5.33333V10.6667C1.33301 11.403 1.92996 12 2.66634 12H9.33301C10.0694 12 10.6663 11.403 10.6663 10.6667V5.33333C10.6663 4.59695 10.0694 4 9.33301 4Z" stroke="#FFB81C" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-  
 );
 
 const IconExternal = (props: { className?: string }) => (
@@ -41,75 +36,57 @@ const IconExternal = (props: { className?: string }) => (
   </svg>
 );
 
-
-
-const StatTile: React.FC<{ metric: Metric }> = ({ metric }) => (
+const StatTile: React.FC<{ metric: Metric; loading?: boolean }> = ({ metric, loading }) => (
   <div className="bg-white/90 shadow rounded-xl p-4 sm:p-5 lg:p-6 flex flex-col justify-center min-h-[80px] sm:min-h-[88px]">
-    <div className="text-xl sm:text-2xl font-semibold text-slate-900">{metric.value}</div>
+    {loading ? (
+      <span className="h-6 w-10 animate-pulse rounded bg-gray-200" />
+    ) : (
+      <div className="text-xl sm:text-2xl font-semibold text-slate-900">{metric.value}</div>
+    )}
     <div className="text-xs sm:text-sm text-slate-500 mt-1">{metric.label}</div>
   </div>
 );
 
-const ResourceRow: React.FC<{ r: Resource }> = ({ r }) => {
-  const icon = r.kind === "video" ? <IconVideo className="w-5 h-5 sm:w-6 sm:h-6" /> : <IconDoc className="w-5 h-5 sm:w-6 sm:h-6" />;
-  return (
-    <li className="flex items-center gap-3 sm:gap-4 lg:gap-5 py-3 sm:py-4 lg:py-5">
-      {/* Icon */}
-      <div
-        className="
-          w-10 h-10 sm:w-11 sm:h-11
-          rounded-lg sm:rounded-xl
-          bg-[#FFF6D8]
-          flex items-center justify-center
-          shrink-0
-        "
-      >
-        {icon}
-      </div>
-    
-      {/* Text + External */}
-      <a
-        href={r.href ?? "#"}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="
-          flex items-center justify-between
-          w-full
-          text-sm sm:text-base
-          font-medium
-          text-[#0A1F44]
-          hover:text-[#1E3A8A]
-          transition-colors
-          gap-2
-        "
-      >
-        <span className="truncate pr-2">{r.title}</span>
-        <IconExternal className="w-4 h-4 text-[#94A3B8] flex-shrink-0" />
-      </a>
-    </li>
-  );
-};
+const ResourceRow: React.FC<{ r: Resource }> = ({ r }) => (
+  <li className="flex items-center gap-3 sm:gap-4 lg:gap-5 py-3 sm:py-4 lg:py-5">
+    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#FFF6D8] flex items-center justify-center shrink-0">
+      <IconDoc className="w-5 h-5 sm:w-6 sm:h-6" />
+    </div>
+    <a
+      href={r.href}
+      target={r.href.startsWith("/") ? undefined : "_blank"}
+      rel="noopener noreferrer"
+      className="flex items-center justify-between w-full text-sm sm:text-base font-medium text-[#0A1F44] hover:text-[#1E3A8A] transition-colors gap-2"
+    >
+      <span className="truncate pr-2">{r.title}</span>
+      <IconExternal className="w-4 h-4 text-[#94A3B8] flex-shrink-0" />
+    </a>
+  </li>
+);
 
-
+// Real, in-app destinations — replaces the old links that all pointed to "#".
+const RESOURCES: Resource[] = [
+  { id: "r1", title: "Chat with Mentor AI for guidance", href: "/dashboard/mentors-ai", kind: "doc" },
+  { id: "r2", title: "Browse mentor directory", href: "/dashboard/community/find", kind: "doc" },
+  { id: "r3", title: "Explore training courses", href: "/dashboard/academy", kind: "doc" },
+];
 
 export default function MentorshipProgress(): JSX.Element {
-  // MOCK / EXAMPLE DATA — replace with props or store values
-  const overallPercent = 60; // numeric percent shown on the right of the bar
-  const progressFractionText = "60% Complete";
+  const { data: stats, loading: statsLoading } = useApiGet<MentorStats>("/mentors/stats", EMPTY_STATS);
+  const { data: mentors, loading: mentorsLoading } = useApiGet<MyMentorEntry[]>("/mentors/my-mentors", []);
+  const s = stats ?? EMPTY_STATS;
+  const myMentors = mentors ?? [];
+  const loading = statsLoading || mentorsLoading;
+
+  const upcoming = myMentors.filter((m) => m.nextSessionAt && new Date(m.nextSessionAt) > new Date()).length;
+  const pendingRequests = myMentors.filter((m) => m.status === "PENDING").length;
+  const percentForBar = s.careerReadinessPercent;
+
   const metrics: Metric[] = [
-    { value: 5, label: "Sessions Attended" },
-    { value: 2, label: "Upcoming" },
-    { value: 1, label: "Pending Feedback" },
+    { value: s.totalSessions, label: "Sessions Attended" },
+    { value: upcoming, label: "Upcoming" },
+    { value: pendingRequests, label: "Pending Requests" },
   ];
-
-  const resources: Resource[] = [
-    { id: "r1", title: "Mentor-Approved Resources", href: "#", kind: "doc" },
-    { id: "r2", title: "Session Notes & Recordings", href: "#", kind: "video" },
-    { id: "r3", title: "Career Development Template", href: "#", kind: "doc" },
-  ];
-
-  // Accessible percentage for the bar (either use overallPercent or calc from text)
-  const percentForBar = overallPercent;
 
   return (
     <section className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -131,17 +108,19 @@ export default function MentorshipProgress(): JSX.Element {
           {/* Progress Labels */}
           <div className="mb-2 flex items-center justify-between">
             <div className="text-sm sm:text-base text-[#364153]">Overall Progress</div>
-            <div className="text-sm sm:text-base font-medium text-[#364153]">{progressFractionText}</div>
+            <div className="text-sm sm:text-base font-medium text-[#364153]">
+              {loading ? "…" : `${percentForBar}% Complete`}
+            </div>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-5 sm:mb-6">
-            <div 
-              className="w-full rounded-full bg-slate-200 h-2.5 sm:h-3 overflow-hidden" 
-              role="progressbar" 
-              aria-valuenow={percentForBar} 
-              aria-valuemin={0} 
-              aria-valuemax={100} 
+            <div
+              className="w-full rounded-full bg-slate-200 h-2.5 sm:h-3 overflow-hidden"
+              role="progressbar"
+              aria-valuenow={percentForBar}
+              aria-valuemin={0}
+              aria-valuemax={100}
               aria-label="Overall mentorship progress"
             >
               <div
@@ -154,9 +133,15 @@ export default function MentorshipProgress(): JSX.Element {
           {/* Metrics Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
             {metrics.map((m) => (
-              <StatTile key={m.label} metric={{ label: m.label, value: String(m.value) }} />
+              <StatTile key={m.label} metric={m} loading={loading} />
             ))}
           </div>
+
+          {!loading && myMentors.length === 0 && (
+            <p className="text-sm text-slate-600 mb-4">
+              You haven't started a mentorship yet — connect with a mentor to start tracking real progress here.
+            </p>
+          )}
 
           {/* Quote */}
           <blockquote className="mt-4 text-slate-600 italic text-base sm:text-lg">
@@ -167,20 +152,14 @@ export default function MentorshipProgress(): JSX.Element {
         {/* Right: Resource Library (spans 4/12 on large screens) */}
         <aside
           aria-labelledby="resource-library-title"
-          className="
-            lg:col-span-4
-            bg-[#FFFBF2]
-            rounded-xl sm:rounded-[20px]
-            border border-[#E6E1D3]
-            p-5 sm:p-6 lg:p-7
-          "
+          className="lg:col-span-4 bg-[#FFFBF2] rounded-xl sm:rounded-[20px] border border-[#E6E1D3] p-5 sm:p-6 lg:p-7"
         >
           <h3 id="resource-library-title" className="text-lg sm:text-xl font-semibold text-[#002147] mb-3 sm:mb-4">
             Resource Library
           </h3>
 
           <ul className="space-y-1 sm:space-y-2">
-            {resources.map((r) => (
+            {RESOURCES.map((r) => (
               <ResourceRow key={r.id} r={r} />
             ))}
           </ul>

@@ -76,7 +76,7 @@ const AI_STUDIO_PATHS = [
 ] as const;
 
 const Dashboard: React.FC = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
   const [aiStudioOpen, setAiStudioOpen] = useState(false);
