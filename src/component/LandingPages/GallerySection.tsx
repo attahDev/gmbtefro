@@ -6,6 +6,7 @@ const GALLERY_IMAGES = [
   "Ann.jpg",
   "Gallery_Image (3).jpeg",
   "Gallery_Image (4).jpeg",
+  "Gallery_Image (5).jpeg",
 ] as const;
 
 type GalleryImageMeta = {
@@ -17,6 +18,7 @@ const GALLERY_IMAGE_META: Record<(typeof GALLERY_IMAGES)[number], GalleryImageMe
   "Ann.jpg": { portrait: true, objectPosition: "center top" },
   "Gallery_Image (3).jpeg": {},
   "Gallery_Image (4).jpeg": { portrait: true, objectPosition: "center top" },
+  "Gallery_Image (5).jpeg": {},
 };
 
 const gallerySrc = (filename: string) =>
@@ -121,7 +123,7 @@ const galleryMoments: GalleryMoment[] = [
     title: "Building Our Membership Network",
     description:
       "Preserving, identifying, and leveraging the history and shared culture of our membership network as a core strategic pillar.",
-    image: gallerySrc(GALLERY_IMAGES[2]),
+    image: gallerySrc(GALLERY_IMAGES[3]),
   },
 ];
 
@@ -139,6 +141,42 @@ const storyVideos: StoryVideo[] = [
     subtitle: "Book Launch",
     duration: "0:29",
     youtubeId: "3GX9KUPwlGw",
+  },
+];
+
+interface LinkedInStory {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+}
+
+// NOTE: LinkedIn blocks automated scraping of individual post captions, so
+// these titles/descriptions are inferred from the post URL slugs, not
+// copied verbatim from the posts. Swap in the real caption text if you have
+// it — this is meant to get the links live now, not to put words in
+// The Portico Library's mouth.
+const linkedInStories: LinkedInStory[] = [
+  {
+    id: "reunited-project",
+    title: "Reunited Project: Heritage & Library",
+    description:
+      "The Portico Library shares an update on the Reunited Project restoring the historic building's heritage.",
+    url: "https://www.linkedin.com/posts/the-portico-library_reunitedproject-heritage-library-activity-7463634932930760705-l8mw",
+  },
+  {
+    id: "why-join-portico",
+    title: "Why Join The Portico?",
+    description:
+      "The Portico Library on what makes membership worthwhile — from the historic collection to community events.",
+    url: "https://www.linkedin.com/posts/the-portico-library_why-join-the-portico-portico-members-activity-7472181527729127424-JXOD",
+  },
+  {
+    id: "portico-milestone",
+    title: "Celebrating a Portico Milestone",
+    description:
+      "The Portico Library marks a milestone anniversary since a key moment in the library's recent history.",
+    url: "https://www.linkedin.com/posts/the-portico-library_we-cant-believe-its-already-been-more-than-activity-7475176201196756992-b8iH",
   },
 ];
 
@@ -479,6 +517,34 @@ export default function ImpactGallery() {
                     );
                   })}
                 </ul>
+              </div>
+            </div>
+
+            {/* Featured on LinkedIn — external stories from The Portico Library */}
+            <div className="mt-10">
+              <h4 className="font-open-sans text-lg sm:text-xl font-bold text-[#001F3F] mb-4">
+                Featured on LinkedIn
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {linkedInStories.map((story) => (
+                  <a
+                    key={story.id}
+                    href={story.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block bg-white rounded-2xl p-5 shadow-sm border border-[#001F3F]/10 hover:border-[#FFD700] hover:shadow-md transition"
+                  >
+                    <p className="font-open-sans text-sm font-bold text-[#001F3F] group-hover:text-[#D7263D] transition">
+                      {story.title}
+                    </p>
+                    <p className="font-open-sans text-xs text-[#6B7280] mt-2 leading-relaxed">
+                      {story.description}
+                    </p>
+                    <span className="inline-block mt-3 text-xs font-semibold text-[#001F3F]/60 group-hover:text-[#FFD700] transition">
+                      View on LinkedIn →
+                    </span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
