@@ -310,20 +310,27 @@ const Footer = () => {
                         </p>
 
                         <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-sm">
-                                <Mail className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
-                                <span className="text-gray-300">info@gmblacktechexpo.co.uk</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm">
-                                <Phone className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
-                                <span className="text-gray-300">+44 161 XXX XXXX</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm">
-                                <MapPin className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
-                                <span className="text-gray-300">Manchester, Greater Manchester</span>
-                            </div>
+                          
+                            href="mailto:info@gmblacktechexpo.co.uk"
+                            className="flex items-center gap-3 text-sm hover:text-[#FFD700] transition"
+                          >
+                            <Mail className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
+                            <span className="text-gray-300">info@gmblacktechexpo.co.uk</span>
+                          </a>
+                        
+                          
+                            href="tel:+447405230017"
+                            className="flex items-center gap-3 text-sm hover:text-[#FFD700] transition"
+                          >
+                            <Phone className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
+                            <span className="text-gray-300">+447405230017</span>
+                          </a>
+                        
+                          <div className="flex items-center gap-3 text-sm">
+                            <MapPin className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
+                            <span className="text-gray-300">Manchester, Greater Manchester</span>
+                          </div>
                         </div>
-
                         {/* Social Links */}
                         <div className="flex gap-3 mt-6">
                             {[
