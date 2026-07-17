@@ -42,9 +42,9 @@ We are not liable for damage caused by:
 `;
 
 const PRIVACY_POLICY_TEXT = `
-Greater Manchester Black Tech Expo CIC (“GMBTE CIC”) — Privacy Policy
+Greater Manchester Black Tech Expo CIC ("GMBTE CIC") — Privacy Policy
 Last Updated: January 2025
-This Privacy Policy explains how Greater Manchester Black Tech Expo CIC (“we”, “us”, “our”) collects, uses, stores and protects personal data in accordance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
+This Privacy Policy explains how Greater Manchester Black Tech Expo CIC ("we", "us", "our") collects, uses, stores and protects personal data in accordance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
 
 1. WHO WE ARE
 Greater Manchester Black Tech Expo CIC
@@ -310,22 +310,22 @@ const Footer = () => {
                         </p>
 
                         <div className="space-y-3">
-                          
+                          <a
                             href="mailto:info@gmblacktechexpo.co.uk"
                             className="flex items-center gap-3 text-sm hover:text-[#FFD700] transition"
                           >
                             <Mail className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
                             <span className="text-gray-300">info@gmblacktechexpo.co.uk</span>
                           </a>
-                        
-                          
+
+                          <a
                             href="tel:+447405230017"
                             className="flex items-center gap-3 text-sm hover:text-[#FFD700] transition"
                           >
                             <Phone className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
                             <span className="text-gray-300">+447405230017</span>
                           </a>
-                        
+
                           <div className="flex items-center gap-3 text-sm">
                             <MapPin className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
                             <span className="text-gray-300">Manchester, Greater Manchester</span>
