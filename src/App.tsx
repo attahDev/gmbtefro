@@ -30,7 +30,7 @@ import { ToolkIndex } from './component/StudentDashboard/ServicesSection/Toolkit
 import ServicesIndexPage from './component/servicesPages/servicesIndex';
 import { Toaster } from "react-hot-toast";
 import ComingSoon from './component/Authentication/Soon';
-import HallOfFameAI from './component/StudentDashboard/HOFAI/hofai';
++import HallOfFameEmbed from './component/StudentDashboard/HOFAI/HallOfFameEmbed';
 import AIDashboardIndex from './component/MarketResearchDashboard/AIDashboardIndex';
 import BPTabs from './component/MarketResearchDashboard/BusinessPlanSection/BPTabs';
 import { IGDashboardSection } from './component/MarketResearchDashboard/IdeaGenerator/IGDashboardSection';
