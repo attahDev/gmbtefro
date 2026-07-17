@@ -1,34 +1,30 @@
 // SupportMissionModal.tsx
 
 import React, { useEffect, useState } from "react";
-import { X, Heart } from "lucide-react";
+import { X, Heart, Copy, Check, Phone } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const presetAmounts = [
-  { amount: 5, label: "Help resource a student" },
-  { amount: 15, label: "Support a community workshop" },
-  { amount: 30, label: "Fund digital skill materials" },
+const bankDetails = [
+  { label: "Account Name", value: "Greater Manchester Black Tech Expo" },
+  { label: "Account Number", value: "71813360" },
+  { label: "Sort Code", value: "30-54-66" },
 ];
 
-const paymentMethods = ["VISA", "MasterCard", "PayPal"];
+const phoneNumber = "+447405230017";
 
 const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const [selectedAmount, setSelectedAmount] = useState<number>(5);
-  const [customAmount, setCustomAmount] = useState("");
-  const [selectedPayment, setSelectedPayment] = useState("VISA");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Lock body scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
-
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -36,13 +32,14 @@ const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const finalAmount = customAmount
-    ? Number(customAmount)
-    : selectedAmount;
+  const handleCopy = (label: string, value: string) => {
+    navigator.clipboard.writeText(value.replace(/\s/g, ""));
+    setCopiedField(label);
+    setTimeout(() => setCopiedField(null), 1500);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
-      
       {/* BACKDROP */}
       <div
         onClick={onClose}
@@ -54,7 +51,7 @@ const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
         className="
           relative
           w-full
-          max-w-[620px]
+          max-w-[480px]
           max-h-[90vh]
           bg-white
           rounded-2xl
@@ -67,7 +64,6 @@ const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
       >
         {/* HEADER */}
         <div className="bg-[#0B1F3B] px-6 py-6 text-white relative">
-          
           <button
             onClick={onClose}
             className="absolute top-5 right-5 text-[#FFD700] hover:scale-110 transition"
@@ -81,9 +77,7 @@ const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold">
-                Support the Mission
-              </h2>
+              <h2 className="text-2xl font-semibold">Support the Mission</h2>
               <p className="mt-1 text-sm text-white/80 leading-5">
                 Empower more people across Greater Manchester through tech and opportunity.
               </p>
@@ -91,134 +85,67 @@ const SupportMissionModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* BODY (SCROLLABLE) */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-
-          {/* CONTRIBUTION OPTIONS */}
+        {/* BODY */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
           <div>
             <h3 className="text-lg font-semibold text-[#0B1F3B]">
-              Contribution Options
+              Bank Transfer Details
             </h3>
+            <p className="mt-1 text-sm text-gray-600">
+              You can send your support directly using the details below.
+            </p>
 
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              {presetAmounts.map((option) => (
-                <button
-                  key={option.amount}
-                  onClick={() => {
-                    setSelectedAmount(option.amount);
-                    setCustomAmount("");
-                  }}
-                  className={`rounded-xl p-3 sm:p-4 border-2 text-left transition
-                    ${
-                      selectedAmount === option.amount &&
-                      !customAmount
-                        ? "border-[#FFD700] bg-[#FFF8DB]"
-                        : "border-gray-200"
-                    }
-                  `}
+            <div className="mt-4 space-y-3">
+              {bankDetails.map((detail) => (
+                <div
+                  key={detail.label}
+                  className="flex items-center justify-between rounded-xl border-2 border-gray-200 px-4 py-3"
                 >
-                  <p className="text-xl sm:text-2xl font-bold text-[#0B1F3B]">
-                    £{option.amount}
-                  </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {option.label}
-                  </p>
-                </button>
+                  <div>
+                    <p className="text-xs text-gray-500">{detail.label}</p>
+                    <p className="text-base font-semibold text-[#0B1F3B]">
+                      {detail.value}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleCopy(detail.label, detail.value)}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-[#0B1F3B] transition hover:border-[#FFD700]"
+                  >
+                    {copiedField === detail.label ? (
+                      <>
+                        <Check size={14} className="text-green-600" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* CUSTOM AMOUNT */}
-          <div>
-            <label className="block text-[#0B1F3B] font-medium mb-2">
-              Enter a different amount
-            </label>
-
-            <div className="border-2 border-gray-200 rounded-xl px-4 py-3 flex items-center focus-within:border-[#FFD700] transition">
-              <span className="text-lg mr-2">£</span>
-              <input
-                type="number"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder="0"
-                className="w-full outline-none text-lg"
-              />
+          <div className="rounded-xl bg-[#FFF8DB] border-2 border-[#FFD700] px-4 py-3">
+            <div className="flex items-center gap-2 text-[#0B1F3B]">
+              <Phone size={16} />
+              <p className="text-xs font-medium">
+                Questions about your donation? Call us
+              </p>
             </div>
+            <a
+              href={`tel:${phoneNumber}`}
+              className="mt-1 block text-lg font-bold text-[#0B1F3B]"
+            >
+              {phoneNumber}
+            </a>
           </div>
-
-          {/* SUPPORT TYPE */}
-          <div>
-            <label className="block text-[#0B1F3B] font-medium mb-2">
-              Support Type
-            </label>
-
-            <input
-              type="text"
-              placeholder="Enter support type"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#FFD700] transition"
-            />
-          </div>
-
-          {/* CONTACT DETAILS */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#0B1F3B]">
-              Contact Details
-            </h3>
-
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#FFD700] transition"
-            />
-
-            <input
-              type="email"
-              placeholder="Email Address"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#FFD700] transition"
-            />
-
-            <textarea
-              placeholder="Why you're supporting us (optional)"
-              rows={3}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#FFD700] transition"
-            />
-          </div>
-
-          {/* PAYMENT METHOD */}
-          <div>
-            <h3 className="text-lg font-semibold text-[#0B1F3B]">
-              Payment Method
-            </h3>
-
-            <div className="mt-3 flex flex-wrap gap-2 sm:gap-3">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method}
-                  onClick={() => setSelectedPayment(method)}
-                  className={`flex-1 min-w-[calc(33.333%-0.5rem)] sm:min-w-0 py-2.5 rounded-xl border-2 text-xs sm:text-sm transition
-                    ${
-                      selectedPayment === method
-                        ? "border-[#FFD700] bg-[#FFF8DB]"
-                        : "border-gray-200"
-                    }
-                  `}
-                >
-                  {method}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* COMPLETE BUTTON */}
-          <button className="w-full bg-[#D7263D] text-white py-3 rounded-xl text-base font-semibold shadow-lg hover:bg-[#D7263D] transition">
-            Complete Support (£{finalAmount})
-          </button>
 
           <p className="text-center text-xs text-gray-500">
             Thank you for empowering Greater Manchester's next generation.
-            <span className="text-[#D7263D]">
-              {" "}Your contribution details are protected.
-            </span>
           </p>
         </div>
       </div>
