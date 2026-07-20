@@ -180,6 +180,7 @@ const NavBar = () => {
         { path: "/partners", label: "Partners" },
           { path: "/services", label: "Services" },
         { path: "/events", label: "Events" },
+        { path: "/hall-of-fame", label: "Hall of Fame" },
         { path: "/contact", label: "Contact Us" },
     ];
 
