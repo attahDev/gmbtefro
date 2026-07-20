@@ -1,4 +1,4 @@
-const HOF_APP_URL = "https://hof-ochre.vercel.app";
+const HOF_APP_URL = "https://hof-ochre.vercel.app/dashboard";
 
 export default function HallOfFameEmbed() {
   return (
