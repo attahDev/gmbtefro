@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Quote } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Spotlight {
   name: string;
@@ -154,9 +154,9 @@ export default function CommunitySpotlight() {
                       <p className="italic text-xs sm:text-sm mt-2 sm:mt-3 max-w-md line-clamp-3 sm:line-clamp-none">
                         "{spotlight.quote}"
                       </p>
-                      <button className="mt-3 sm:mt-5 inline-flex items-center gap-2 bg-[#D7263D] hover:bg-[#D7263D] text-white px-4 sm:px-5 py-2 text-sm sm:text-base rounded-md transition">
+                      {/* <button className="mt-3 sm:mt-5 inline-flex items-center gap-2 bg-[#D7263D] hover:bg-[#D7263D] text-white px-4 sm:px-5 py-2 text-sm sm:text-base rounded-md transition">
                         Read Story →
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 ))}

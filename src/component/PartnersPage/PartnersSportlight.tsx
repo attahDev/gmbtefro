@@ -29,7 +29,7 @@ const SpotlightCard: FC<SpotlightCardProps> = ({
         <div className="p-4 sm:p-6 flex flex-col grow">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{name}</h3>
             <p className="text-gray-700 text-sm sm:text-base leading-relaxed grow">{description}</p>
-            <a
+            {/* <a
                 href="#"
                 className="mt-5 inline-flex items-center gap-2 text-[#D7263D] text-sm font-semibold hover:text-[#D7263D] transition-colors"
             >
@@ -39,7 +39,7 @@ const SpotlightCard: FC<SpotlightCardProps> = ({
                     <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="#D7263D" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
 
-            </a>
+            </a> */}
         </div>
     </div>
 );

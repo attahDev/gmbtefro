@@ -60,13 +60,13 @@ const SpotlightCard: FC<SpotlightCardProps> = ({
       <p className="text-gray-700 text-sm sm:text-base leading-relaxed grow">
         {description}
       </p>
-      <a
+      {/* <a
         href="#"
         className="mt-4 sm:mt-5 inline-flex items-center text-[#D7263D] text-sm font-semibold hover:text-[#D7263D] transition-colors"
       >
         Read More
         <ChevronRight className="ml-1 w-4 h-4" />
-      </a>
+      </a> */}
     </div>
   </div>
 );
