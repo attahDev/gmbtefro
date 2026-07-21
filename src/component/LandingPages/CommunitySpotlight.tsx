@@ -23,7 +23,7 @@ const spotlights: Spotlight[] = [
     lname: "Simmons",
     role: "AI and ML Engineer",
     quote:
-      "The most effective entrepreneurial individuals have been found to be those who adopt an effectual logic. They start with the means they have and rely on the journey to gen...",
+      "The most effective entrepreneurial individuals have been found to be those who adopt an effectual logic. They start with the means they have and rely on the journey to generate ideas and opportunities.",
     image: "/spotlight/emilee.jpeg",
   },
   {
