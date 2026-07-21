@@ -18,7 +18,7 @@ const packages: Package[] = [
   {
     id: "starter",
     name: "Starter Package",
-    price: 99,
+    price: 159,
     description: "Essential support to get you off the ground",
     features: [
       "Business registration support",

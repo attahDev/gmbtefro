@@ -19,7 +19,7 @@ export const packages: Package[] = [
   {
     id: "starter",
     name: "Starter Package",
-    price: 99,
+    price: 159,
     description: "Perfect for new businesses getting started",
     features: [
       "Business registration support",

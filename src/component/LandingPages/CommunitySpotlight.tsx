@@ -20,7 +20,7 @@ const spotlights: Spotlight[] = [
     image: "/spotlight/adewale.jpeg",
   },
   {
-    name: "Emilee",
+    name: "Dr. Emilee",
     lname: "Simmons",
     role: "AI and ML Engineer",
     quote:
