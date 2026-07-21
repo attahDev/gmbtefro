@@ -1,5 +1,5 @@
-import type { FC } from "react";
 import { useAnimationFrame } from "framer-motion";
+import type { FC } from "react";
 import { useRef, useState } from "react";
 
 interface Partner {

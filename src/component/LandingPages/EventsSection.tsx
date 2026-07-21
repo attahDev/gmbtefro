@@ -168,14 +168,14 @@ export default function EventsSection() {
 
   return (
     <section className="w-full bg-[#FFFDF7] py-12 sm:py-16 mt-12 sm:mt-16 md:mt-20">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
         {/* Header */}
         <div className="text-center">
           <span className="inline-block bg-[#F5F5F5] text-[#001F3F] px-3 py-1 rounded-full text-base sm:text-base mb-4">
             Upcoming Events
           </span>
 
-          <h2 className="font-open-sans text-[26px] sm:text-[32px] md:text-[40px] lg:text-[48px] font-bold text-[#001F3F] leading-tight">
+          <h2 className="text-[24px] sm:text-[26px] md:text-[30px] lg:text-[38px] font-bold text-[#001F3F] leading-tight">
             Don’t Miss Out on These Events
           </h2>
 
@@ -206,7 +206,7 @@ export default function EventsSection() {
                 key={f.id}
                 onClick={() => setActiveFilter(f.type ?? "all")}
                 className={`inline-flex items-center gap-3 px-5 sm:px-8 py-2 sm:py-3 rounded-full font-medium text-sm sm:text-base transition-all duration-200 ${isActive
-                    ? "bg-[#FAD941] text-[#001F3F] shadow-[0_4px_0_rgba(193,40,60,0.25)]"
+                    ? "bg-[#FAD941] text-[#001F3F] shadow-[0_4px_0_#D7263D]"
                     : "bg-white text-[#001F3F] border border-slate-100 hover:shadow-sm"
                   }`}
               >
@@ -225,67 +225,67 @@ export default function EventsSection() {
         </div>
 
         {/* Cards Grid */}
-        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
           {filtered.map((ev) => (
             <article
               key={ev.id}
-              className={`bg-white rounded-[14px] border-l-[4px] ${getBorderColor(
+              className={`overflow-hidden rounded-2xl border-[3px] bg-[#FFFDF7] ${getBorderColor(
                 ev.type
-              )} shadow-md overflow-hidden flex flex-col transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-2`}
+              )} flex flex-col shadow-[0_5px_12px_rgba(0,31,63,0.14)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,31,63,0.18)]`}
             >
               {/* Image (only this scales on hover) */}
-              <div className="relative h-[200px] sm:h-[220px] overflow-hidden group">
+              <div className="group relative h-[190px] overflow-hidden sm:h-[210px]">
                 <img
                   src={ev.image}
                   alt={ev.alt}
-                  className="w-full h-full object-cover rounded-t-[14px] transition-transform duration-500 ease-out group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
-                <div className="absolute top-3 right-3">
+                <div className="absolute right-4 top-4">
                   <TypePill type={ev.type} />
                 </div>
               </div>
 
               {/* Body */}
-              <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+              <div className="flex flex-1 flex-col justify-between p-5">
                 <div>
-                  <h3 className="text-[16px] sm:text-[18px] font-semibold text-[#001F3F]">
+                  <h3 className="text-md font-semibold text-[#001F3F] sm:text-lg">
                     {ev.title}
                   </h3>
-                  <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-2 leading-[22px] line-clamp-3">
+                  <p className="mt-2 text-sm leading-5 text-[#526075] sm:text-[13px]">
                     {ev.description}
                   </p>
 
-                  <ul className="mt-4 space-y-2 text-[13px] sm:text-[14px] text-[#4B5563]">
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <Calendar className="w-4 h-4 text-[#C1283C]" />
+                  <ul className="mt-4 space-y-2 text-sm text-[#526075] sm:text-[13px]">
+                    <li className="flex items-center gap-3">
+                      <Calendar className="h-4 w-4 shrink-0 text-[#D7263D]" />
                       <span>{ev.date}</span>
                     </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <Clock className="w-4 h-4 text-[#C1283C]" />
+                    <li className="flex items-center gap-3">
+                      <Clock className="h-4 w-4 shrink-0 text-[#D7263D]" />
                       <span>{ev.time}</span>
                     </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <MapPin className="w-4 h-4 text-[#C1283C]" />
+                    <li className="flex items-center gap-3">
+                      <MapPin className="h-4 w-4 shrink-0 text-[#D7263D]" />
                       <span>{ev.location}</span>
                     </li>
                   </ul>
                 </div>
 
                 <div className="mt-5">
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="mb-4 flex flex-wrap gap-2">
                     {ev.tags.map((t) => (
                       <span
                         key={t}
-                        className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-full"
+                        className="rounded-full bg-slate-100 px-2 py-1 text-xs text-[#001F3F]"
                       >
                         {t}
                       </span>
                     ))}
                   </div>
 
-                  <button className="w-full inline-flex items-center justify-center gap-2 sm:gap-3 bg-[#D7263D] text-white px-4 py-2 sm:py-3 rounded-lg shadow-md hover:bg-[#A31F32] transition-all duration-300">
+                  <button className="inline-flex min-h-[46px] w-full items-center justify-center gap-3 rounded-xl bg-[#D7263D] px-4 py-2.5 text-base font-medium text-white transition-colors duration-300 hover:bg-[#B41F33]">
                     View Details
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -295,7 +295,10 @@ export default function EventsSection() {
 
         {/* View All Button */}
         <div className="mt-12 flex  justify-center">
-          <button className="inline-flex items-center gap-2 sm:gap-3 bg-[#D7263D] text-white px-5 sm:px-6 py-2 sm:py-3 rounded-xl shadow hover:bg-[#A31F32] transition">
+          <a
+            href="/events"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#D7263D] px-5 py-2 text-white shadow transition hover:bg-[#A31F32] sm:gap-3 sm:px-6 sm:py-3"
+          >
             View All Events
 
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -305,7 +308,7 @@ export default function EventsSection() {
               <path d="M2 6.66663H14" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
 
-          </button>
+          </a>
         </div>
       </div>
     </section>
