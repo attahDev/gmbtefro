@@ -1,19 +1,5 @@
 // @ts-nocheck
-
-// @ts-nocheck
-
-const BASE = (
-  import.meta.env.VITE_MARKET_RESEARCH_API_URL ||
-  "https://gmbtpitch.onrender.com"
-).replace(/\/+$/, "");
-
-console.log("Market Research API:", BASE);
-
-if (!BASE) {
- console.error(
-    "VITE_PROPOSAL_API_URL is not set. Proposal Builder will not work until this is fixed in Vercel → Environment Variables."
-  );
-}
+const BASE = "https://gmbtpitch.onrender.com";
 
 const PAGE_SIZE = 5;
 
