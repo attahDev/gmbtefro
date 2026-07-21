@@ -110,14 +110,14 @@ const ACommunitySpotlight: FC = () => {
       description:
         "This is just the beginning. Let’s build local, scale global. The power of visibility changes everything when women see each other rise",
     },
-     {
-      image: "/spotlight/woman1.png",
-      name: "Rose",
-      lname: "Ududu",
-      role: "Software Engineer at MediaCityUK",
-      description:
-        "Meet Rose Ududu, who began her journey through our mentorship program and now inspires young developers across Manchester.",
-    },
+    //  {
+    //   image: "/spotlight/woman1.png",
+    //   name: "Rose",
+    //   lname: "Ududu",
+    //   role: "Software Engineer at MediaCityUK",
+    //   description:
+    //     "Meet Rose Ududu, who began her journey through our mentorship program and now inspires young developers across Manchester.",
+    // },
     {
       image: "/spotlight/bimbo.png",
       name: "Bimbo",
