@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -45,6 +45,9 @@ const spotlights: Spotlight[] = [
   },
 ];
 
+const SWIPE_OFFSET = 60;
+const SWIPE_VELOCITY = 500;
+
 export default function CommunitySpotlight() {
   const [startIndex, setStartIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
@@ -83,6 +86,15 @@ export default function CommunitySpotlight() {
     setStartIndex((prev) => Math.max(prev - itemsPerView, 0));
   };
 
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const { offset, velocity } = info;
+    if (offset.x < -SWIPE_OFFSET || velocity.x < -SWIPE_VELOCITY) {
+      handleNext();
+    } else if (offset.x > SWIPE_OFFSET || velocity.x > SWIPE_VELOCITY) {
+      handlePrev();
+    }
+  };
+
   const displayed = spotlights.slice(startIndex, startIndex + itemsPerView);
 
   return (
@@ -93,7 +105,7 @@ export default function CommunitySpotlight() {
           Featured Stories
         </p>
         <h2 className="font-montserrat text-xl font-bold text-[#001F3F] sm:text-[27px] md:text-[30px]">
-          Community Spotlddight
+          Community Spotlight
         </h2>
         <p className="font-montserrat mt-2 px-2 text-base text-[#6B7280] sm:text-lg md:text-2xl">
           Celebrating the faces shaping Manchester&apos;s tech future.
@@ -117,7 +129,7 @@ export default function CommunitySpotlight() {
           </button>
 
           {/* Cards */}
-          <div className="w-full overflow-hidden">
+          <div className="w-full overflow-hidden touch-pan-y">
             <AnimatePresence mode="wait">
               <motion.div
                 key={startIndex}
@@ -125,7 +137,11 @@ export default function CommunitySpotlight() {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -80, opacity: 0 }}
                 transition={{ duration: 0.45 }}
-                className="flex flex-nowrap justify-start gap-4 sm:gap-6 sm:justify-between"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.35}
+                onDragEnd={handleDragEnd}
+                className="flex cursor-grab flex-nowrap justify-start gap-4 active:cursor-grabbing sm:cursor-default sm:gap-6 sm:justify-between"
               >
                 {displayed.map((spotlight, i) => (
                   <div
@@ -136,7 +152,8 @@ export default function CommunitySpotlight() {
                       <img
                         src={spotlight.image}
                         alt={`Headshot of ${spotlight.name} ${spotlight.lname}`}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="pointer-events-none h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        draggable={false}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                     </div>

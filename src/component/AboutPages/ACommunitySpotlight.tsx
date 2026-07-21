@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
@@ -22,7 +22,8 @@ const SpotlightCard: FC<SpotlightCardProps> = ({
       <img
         src={image}
         alt={`Headshot of ${name} ${lname}`}
-        className="h-full w-full object-cover object-[50%_10%] transition-transform duration-500 ease-in-out group-hover:scale-110"
+        className="pointer-events-none h-full w-full object-cover object-[50%_10%] transition-transform duration-500 ease-in-out group-hover:scale-110"
+        draggable={false}
       />
       <div className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#FFD700] text-lg font-bold text-[#001F3F] shadow-md sm:top-4 sm:right-4 sm:h-10 sm:w-10 sm:text-xl">
         <svg
@@ -98,6 +99,9 @@ const cards = [
   },
 ];
 
+const SWIPE_OFFSET = 60;
+const SWIPE_VELOCITY = 500;
+
 const ACommunitySpotlight: FC = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
@@ -136,6 +140,15 @@ const ACommunitySpotlight: FC = () => {
     setStartIndex((prev) => Math.max(prev - itemsPerView, 0));
   };
 
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const { offset, velocity } = info;
+    if (offset.x < -SWIPE_OFFSET || velocity.x < -SWIPE_VELOCITY) {
+      handleNext();
+    } else if (offset.x > SWIPE_OFFSET || velocity.x > SWIPE_VELOCITY) {
+      handlePrev();
+    }
+  };
+
   const displayed = cards.slice(startIndex, startIndex + itemsPerView);
 
   return (
@@ -172,7 +185,7 @@ const ACommunitySpotlight: FC = () => {
             <ChevronLeft size={22} />
           </button>
 
-          <div className="w-full overflow-hidden">
+          <div className="w-full overflow-hidden touch-pan-y">
             <AnimatePresence mode="wait">
               <motion.div
                 key={startIndex}
@@ -180,7 +193,11 @@ const ACommunitySpotlight: FC = () => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -80, opacity: 0 }}
                 transition={{ duration: 0.45 }}
-                className="flex flex-nowrap justify-start gap-4 sm:gap-6 sm:justify-between"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.35}
+                onDragEnd={handleDragEnd}
+                className="flex cursor-grab flex-nowrap justify-start gap-4 active:cursor-grabbing sm:cursor-default sm:gap-6 sm:justify-between"
               >
                 {displayed.map((card, index) => (
                   <SpotlightCard key={`${card.name}-${card.lname}-${index}`} {...card} />
