@@ -112,27 +112,19 @@ const ACommunitySpotlight: FC = () => {
     },
      {
       image: "/spotlight/woman1.png",
-      name: "Amara",
-      lname: "Johnson",
+      name: "Rose",
+      lname: "Ududu",
       role: "Software Engineer at MediaCityUK",
       description:
-        "Meet Amara Johnson, who began her journey through our mentorship program and now inspires young developers across Manchester.",
+        "Meet Rose Ududu, who began her journey through our mentorship program and now inspires young developers across Manchester.",
     },
     {
-      image: "/spotlight/woman2.png",
-      name: "Marcus",
-      lname: "Williams",
+      image: "/spotlight/bimbo.png",
+      name: "Bimbo",
+      lname: "Ponmile",
       role: "Tech Entrepreneur & Founder",
       description:
-        "Meet Marcus Williams from Hulme, who launched his first app after joining GMBTE's founder bootcamp, proving that big ideas can start right here.",
-    },
-    {
-      image: "/spotlight/woman3.png",
-      name: "David",
-      lname: "Khan",
-      role: "UX Designer at Manchester Digital",
-      description:
-        "Meet David Khan, who credits GMBTE for connecting him to mentors and a community that transformed his design career.",
+        "Let’s keep building workplaces where people dont have to shrink to succeed",
     },
   ];
 

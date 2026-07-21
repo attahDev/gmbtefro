@@ -35,28 +35,13 @@ const spotlights: Spotlight[] = [
     image: "/spotlight/carol.jpeg",
   },
   {
-    name: "Sara",
-    lname: "Okafor",
-    role: "Product Manager at TechNorth",
-    quote:
-      "The Manchester tech community gave me the confidence to lead diverse teams.",
-    image: "/spotlight/woman1.png",
-  },
-  {
-    name: "James",
-    lname: "Taylor",
+    name: "Esther ",
+    lname: "Aluko",
     role: "AI Researcher at Innovate UK",
-    quote: "Innovation thrives when collaboration meets curiosity.",
-    image: "/spotlight/woman2.png",
+    quote: "What an eventful weekend at the GREATER MANCHESTER BLACK TECH  EXPO! The lineup of speakers and panelists was brilliantly curated,  representing diverse industries. ",
+    image: "/spotlight/esther.png",
   },
-  {
-    name: "Aisha",
-    lname: "Bello",
-    role: "Blockchain Engineer at FinTech North",
-    quote:
-      "Building decentralized tools that empower local startups is my mission.",
-    image: "/spotlight/woman3.png",
-  },
+  
 ];
 
 export default function CommunitySpotlight() {
