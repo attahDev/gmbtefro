@@ -18,7 +18,7 @@ export default function SupportMissionSection() {
         {/* Left Column */}
         <div className="z-10 text-center lg:text-left">
           <h2 className="text-[26px] sm:text-[32px] md:text-[36px] font-bold text-[#001F3F] mb-4 sm:mb-6 leading-snug">
-            Empowering Greater Manchester
+            Empowering Greater Manchester{' '}
             <br className="hidden sm:block" />
             Through Tech and Opportunities
           </h2>
