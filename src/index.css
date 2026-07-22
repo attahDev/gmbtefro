@@ -104,3 +104,72 @@ body {
 .section {
   scroll-snap-align: start;
 }
+
+/* ========================= */
+/* Infinite Partner Marquee  */
+/* ========================= */
+
+.marquee-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee-left {
+  animation: marquee-left 35s linear infinite;
+}
+
+.marquee-right {
+  animation: marquee-right 35s linear infinite;
+}
+
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .marquee-left,
+  .marquee-right {
+    animation-duration: 28s;
+  }
+}
+
+@media (max-width: 768px) {
+  .marquee-left,
+  .marquee-right {
+    animation-duration: 22s;
+  }
+}
+
+@media (max-width: 480px) {
+  .marquee-left,
+  .marquee-right {
+    animation-duration: 18s;
+  }
+}
