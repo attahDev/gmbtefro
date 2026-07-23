@@ -56,9 +56,12 @@ const MeetTheTeam: React.FC = () => {
           </p>
         </div>
 
-        <div className="mx-auto grid w-full max-w-[1480px] grid-cols-1 justify-items-center gap-x-6 gap-y-14 sm:grid-cols-2 sm:gap-y-16 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-20 2xl:grid-cols-4 2xl:gap-x-6">
+        <div className="mx-auto grid w-full max-w-[1480px] grid-cols-1 justify-items-center gap-x-5 gap-y-14 sm:grid-cols-2 sm:gap-y-16 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16 2xl:gap-x-6 2xl:gap-y-20">
           {teamMembers.map((member) => (
-            <article key={`${member.name}-${member.lname}`} className="group relative w-full max-w-[350px] pb-[85px]">
+            <article
+              key={`${member.name}-${member.lname}`}
+              className="group relative w-full max-w-[320px] pb-[80px]"
+            >
               <div className="relative aspect-square w-full overflow-hidden border border-[#F7F5EE] bg-[#EBEBEB] shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.10),0px_10px_15px_-3px_rgba(0,0,0,0.10)]">
                 <img
                   src={member.image}
@@ -67,13 +70,13 @@ const MeetTheTeam: React.FC = () => {
                 />
               </div>
 
-              <div className="absolute bottom-[0px] left-1/2 z-10 flex min-h-[112px] w-[88%] -translate-x-1/2 flex-col items-center justify-center rounded-[16px] bg-white px-3 py-4 text-center shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.10),0px_10px_15px_-3px_rgba(0,0,0,0.10)] sm:w-[90%] sm:px-4 lg:w-[90%]">
-                <h3 className="whitespace-nowrap font-montserrat text-[16px] font-semibold leading-[22px] text-[#001F3F] sm:text-[18px] lg:text-[19px] xl:text-[20px]">
+              <div className="absolute bottom-[0px] left-1/2 z-10 flex min-h-[100px] w-[90%] -translate-x-1/2 flex-col items-center justify-center rounded-[16px] bg-white px-3 py-3 text-center shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.10),0px_10px_15px_-3px_rgba(0,0,0,0.10)] sm:w-[90%] sm:px-4">
+                <h3 className="font-montserrat text-[15px] font-semibold leading-[20px] text-[#001F3F] sm:text-[17px] lg:text-[15px] xl:text-[16px]">
                   <span>{member.name}</span>{" "}
                   <span className="text-[#D7263D]">{member.lname}</span>
                 </h3>
 
-                <p className="mt-2 max-w-[280px] font-open-sans text-[12px] font-normal leading-[18px] text-[#B69A00] sm:text-[13px] lg:text-[14px] lg:leading-[20px]">
+                <p className="mt-2 max-w-[260px] font-open-sans text-[11px] font-normal leading-[16px] text-[#B69A00] sm:text-[13px] lg:text-[11px] lg:leading-[16px] xl:text-[12px] xl:leading-[18px]">
                   {member.title}
                 </p>
               </div>
