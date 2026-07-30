@@ -18,6 +18,35 @@ export default function NewsArticlePage() {
       .catch(() => setNotFound(true));
   }, [id]);
 
+  // Reflect the real article title/description in the tab and in any
+  // meta tags that get read after the page has hydrated (the static
+  // <head> in index.html only has the generic site-wide title/OG tags,
+  // which is why shared links previously fell back to showing the raw
+  // URL/id instead of the headline).
+  useEffect(() => {
+    if (!article) return;
+
+    const previousTitle = document.title;
+    document.title = `${article.title} | GM Black Tech Expo`;
+
+    const setMeta = (selector: string, attr: "content", value: string) => {
+      const el = document.head.querySelector(selector);
+      if (el) el.setAttribute(attr, value);
+    };
+
+    setMeta('meta[name="description"]', "content", article.excerpt);
+    setMeta('meta[property="og:title"]', "content", article.title);
+    setMeta('meta[property="og:description"]', "content", article.excerpt);
+    setMeta('meta[property="og:url"]', "content", window.location.href);
+    if (article.image) setMeta('meta[property="og:image"]', "content", article.image);
+    setMeta('meta[name="twitter:title"]', "content", article.title);
+    setMeta('meta[name="twitter:description"]', "content", article.excerpt);
+
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [article]);
+
   if (notFound) {
     return (
       <section className="w-full bg-[#FFFDF7] py-24 text-center">
