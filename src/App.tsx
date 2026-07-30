@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { IndexAboutPage } from './component/AboutPages/IndexAboutPage';
 import { EventIndex } from './component/EventPages/EventIndex';
+import { NewsIndex } from './component/NewsPages/NewsIndex';
+import NewsArticlePage from './component/NewsPages/NewsArticlePage';
 import IndexPartnersPage from './component/PartnersPage/PartnersIndex';
 import { IndexContact } from './component/contactPages/IndexContact';
 import { BotComp } from './Bot';
@@ -41,6 +43,7 @@ import AdminOverview from './component/Admin/AdminOverview';
 import AdminUsers from './component/Admin/AdminUsers';
 import AdminMentors from './component/Admin/AdminMentors';
 import AdminEvents from './component/Admin/AdminEvents';
+import AdminNews from './component/Admin/AdminNews';
 import AdminCourses from './component/Admin/AdminCourses';
 import AdminGreenProjects from './component/Admin/AdminGreenProjects';
 import AdminHOF from './component/Admin/AdminHOF';
@@ -127,6 +130,8 @@ function AppLayout() {
           <Route path="/about" element={<IndexAboutPage />} />
           <Route path="/partners" element={<IndexPartnersPage />} />
           <Route path="/events" element={<EventIndex />} />
+          <Route path="/news" element={<NewsIndex />} />
+          <Route path="/news/:id" element={<NewsArticlePage />} />
           <Route path="/hall-of-fame" element={<HallOfFameLandingEmbed />} />
           <Route path="/contact" element={<IndexContact />} />
           <Route path="/services" element={<ServicesIndexPage />} />
@@ -140,6 +145,7 @@ function AppLayout() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="mentors" element={<AdminMentors />} />
               <Route path="events" element={<AdminEvents />} />
+              <Route path="news" element={<AdminNews />} />
               <Route path="courses" element={<AdminCourses />} />
               <Route path="opportunities" element={<AdminOpportunities />} />
               <Route path="community" element={<AdminCommunity />} />

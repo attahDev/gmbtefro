@@ -13,6 +13,7 @@ const TABS = [
   { to: "/dashboard/admin/users", label: "Users" },
   { to: "/dashboard/admin/mentors", label: "Mentors" },
   { to: "/dashboard/admin/events", label: "Events" },
+  { to: "/dashboard/admin/news", label: "News" },
   { to: "/dashboard/admin/courses", label: "Courses" },
   { to: "/dashboard/admin/green-projects", label: "Green Projects" },
   { to: "/dashboard/admin/hall-of-fame", label: "Hall of Fame" },
