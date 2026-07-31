@@ -151,3 +151,39 @@ export async function deleteNewsArticle(id: string) {
   const { data } = await api.delete(`/news/${id}`);
   return data;
 }
+
+// ───────────────────────── Comments ─────────────────────────
+
+export type NewsComment = {
+  id: string;
+  articleId: string;
+  userId: string | null;
+  authorName: string | null;
+  content: string;
+  createdAt: string;
+  user: { firstname: string; lastname: string } | null;
+};
+
+/** GET /news/:id/comments — public, no auth required to read. */
+export async function fetchNewsComments(articleId: string): Promise<NewsComment[]> {
+  const { data } = await api.get(`/news/${articleId}/comments`);
+  return data?.data ?? data;
+}
+
+/** POST /news/:id/comments — open to everyone (accounts/login aren't
+ *  public yet). If the caller happens to have a valid token, the backend
+ *  auto-attributes the comment to their account and ignores authorName;
+ *  otherwise authorName is required so the comment has a display name. */
+export async function addNewsComment(
+  articleId: string,
+  content: string,
+  authorName?: string,
+): Promise<NewsComment> {
+  const { data } = await api.post(`/news/${articleId}/comments`, { content, authorName });
+  return data?.data ?? data;
+}
+
+export async function deleteOwnNewsComment(commentId: string) {
+  const { data } = await api.delete(`/news/comments/${commentId}`);
+  return data;
+}

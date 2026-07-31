@@ -3,6 +3,145 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { fetchNewsArticle, type UiNewsArticle } from "../../lib/newsApi";
+import {
+  fetchNewsComments,
+  addNewsComment,
+  deleteOwnNewsComment,
+  type NewsComment,
+} from "../../lib/newsApi";
+import { useAuth } from "../../contexts/mainuseAuth";
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((p) => p[0]?.toUpperCase())
+    .slice(0, 2)
+    .join("");
+}
+
+function displayName(c: NewsComment): string {
+  if (c.user) return `${c.user.firstname} ${c.user.lastname}`;
+  return c.authorName || "Anonymous";
+}
+
+function CommentThread({ articleId }: { articleId: string }) {
+  const { user, isAuthenticated } = useAuth();
+  const [comments, setComments] = useState<NewsComment[] | null>(null);
+  const [text, setText] = useState("");
+  const [name, setName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchNewsComments(articleId)
+      .then(setComments)
+      .catch(() => setComments([]));
+  }, [articleId]);
+
+  const canSubmit = text.trim() && (isAuthenticated || name.trim());
+
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!canSubmit || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const comment = await addNewsComment(
+        articleId,
+        text.trim(),
+        isAuthenticated ? undefined : name.trim(),
+      );
+      setComments((prev) => [...(prev ?? []), comment]);
+      setText("");
+    } catch (err: any) {
+      // leave their draft text in place so they can retry
+      if (err?.response?.status === 429) {
+        setError("You're commenting too fast — wait a minute and try again.");
+      } else {
+        setError(err?.response?.data?.message || "Couldn't post that comment. Try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const remove = async (commentId: string) => {
+    try {
+      await deleteOwnNewsComment(commentId);
+      setComments((prev) => (prev ?? []).filter((c) => c.id !== commentId));
+    } catch {
+      // best-effort — leave it in place if the delete failed
+    }
+  };
+
+  return (
+    <div className="mt-10 border-t border-gray-200 pt-6">
+      <h2 className="text-[18px] font-semibold text-[#001F3F]">Comments</h2>
+
+      <div className="mt-4 space-y-3">
+        {comments === null && <p className="text-sm text-gray-400">Loading comments…</p>}
+        {comments?.length === 0 && (
+          <p className="text-sm text-gray-400">No comments yet — be the first to say something.</p>
+        )}
+        {comments?.map((c) => (
+          <div key={c.id} className="flex gap-2 text-sm">
+            <div className="h-7 w-7 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-semibold text-gray-600">
+              {initials(displayName(c))}
+            </div>
+            <div className="flex-1">
+              <span className="font-semibold text-gray-900 mr-1.5">{displayName(c)}</span>
+              <span className="text-gray-600">{c.content}</span>
+            </div>
+            {isAuthenticated && user?.id === c.userId && (
+              <button
+                type="button"
+                onClick={() => remove(c.id)}
+                className="text-xs text-gray-400 hover:text-[#D7263D]"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Open to everyone — accounts/login aren't public yet. Logged-in
+       * users skip the name field; it's auto-filled from their account
+       * on the backend regardless of what's submitted here. */}
+      <div className="mt-5 space-y-2">
+        {!isAuthenticated && (
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name"
+            maxLength={80}
+            className="w-full sm:w-64 rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-[#001F3F]"
+          />
+        )}
+        <div className="flex items-center gap-2">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            placeholder="Write a comment…"
+            maxLength={2000}
+            className="flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-[#001F3F]"
+          />
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canSubmit || submitting}
+            className="rounded-full bg-[#001F3F] px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            Send
+          </button>
+        </div>
+        {error && <p className="text-xs text-[#D7263D]">{error}</p>}
+      </div>
+    </div>
+  );
+}
 
 export default function NewsArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -17,35 +156,6 @@ export default function NewsArticlePage() {
       .then(setArticle)
       .catch(() => setNotFound(true));
   }, [id]);
-
-  // Reflect the real article title/description in the tab and in any
-  // meta tags that get read after the page has hydrated (the static
-  // <head> in index.html only has the generic site-wide title/OG tags,
-  // which is why shared links previously fell back to showing the raw
-  // URL/id instead of the headline).
-  useEffect(() => {
-    if (!article) return;
-
-    const previousTitle = document.title;
-    document.title = `${article.title} | GM Black Tech Expo`;
-
-    const setMeta = (selector: string, attr: "content", value: string) => {
-      const el = document.head.querySelector(selector);
-      if (el) el.setAttribute(attr, value);
-    };
-
-    setMeta('meta[name="description"]', "content", article.excerpt);
-    setMeta('meta[property="og:title"]', "content", article.title);
-    setMeta('meta[property="og:description"]', "content", article.excerpt);
-    setMeta('meta[property="og:url"]', "content", window.location.href);
-    if (article.image) setMeta('meta[property="og:image"]', "content", article.image);
-    setMeta('meta[name="twitter:title"]', "content", article.title);
-    setMeta('meta[name="twitter:description"]', "content", article.excerpt);
-
-    return () => {
-      document.title = previousTitle;
-    };
-  }, [article]);
 
   if (notFound) {
     return (
@@ -110,6 +220,8 @@ export default function NewsArticlePage() {
             Original source
           </a>
         )}
+
+        {article.hasDetailPage && <CommentThread articleId={article.id} />}
       </div>
     </article>
   );
