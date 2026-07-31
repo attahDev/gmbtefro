@@ -62,7 +62,7 @@ const HeroSection: React.FC = () => {
           {/* Heading */}
           <h1 className="text-white font-open-sans text-2xl sm:text-3xl md:text-[54px] font-semibold leading-[1.1] tracking-wide">
             The Digital Infrastructure for
-            <br /> Black Innovation, Business & Talent
+            <br />Innovation, Business & Talent
           </h1>
 
           {/* Description */}
