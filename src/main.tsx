@@ -8,6 +8,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
 
     <ErrorBoundary>
+      {/* Please do not comment till after payment */}
       {/* <App /> */}
     </ErrorBoundary>
   </StrictMode>,
