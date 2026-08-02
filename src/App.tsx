@@ -169,7 +169,7 @@ function AppLayout() {
               }
             />
             <Route path="opportunity-insights" element={<ComingSoon />} /> {/* <MRDashboardSection /> */}
-            <Route path="business-plan" element={<ComingSoon />} /> {/* <BPTabs /> */}
+            <Route path="business-plan" element={<AIDashboardIndex />} /> {/* <BPTabs /> */}
 
             <Route path="services" element={<Navigate to="/dashboard/business" replace />} />
             <Route path="services/toolkits" element={<Navigate to="/dashboard/business" replace />} />
