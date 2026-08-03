@@ -224,8 +224,7 @@ function AppLayout() {
                 </Suspense>
               }
             />
-            <Route path="opportunity-insights" element={<ComingSoon />} /> {/* <MRDashboardSection /> */}
-            <Route path="business-plan" element={<AIDashboardIndex />} /> {/* <BPTabs /> */}
+
 
             <Route path="opportunity-insights" element={<MRDashboardSection />} />
             <Route path="business-plan" element={<BPTabs />} />
