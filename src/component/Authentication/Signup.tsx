@@ -136,8 +136,15 @@ export default function SignupModal({ isOpen = true, onClose, onSuccess }: Props
             // Call onSuccess callback
             onSuccess?.(userData);
 
-            // OTP verification disabled for now — go straight to login
-            navigate('/login');
+            // Otp.tsx reads these to know who it's verifying, resend
+            // codes to, and (via verification_token) to log the user
+            // straight in once the OTP checks out
+            localStorage.setItem('pendingVerificationEmail', form.email);
+            if (userData?.verification_token) {
+                localStorage.setItem('pendingVerificationToken', userData.verification_token);
+            }
+
+            navigate('/verify-otp');
 
             // Close modal if in modal mode
             if (onClose) {

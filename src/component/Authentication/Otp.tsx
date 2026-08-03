@@ -13,6 +13,7 @@ export default function OtpPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [email, setEmail] = useState("");
+    const [verificationToken, setVerificationToken] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -24,6 +25,10 @@ export default function OtpPage() {
             return;
         }
         setEmail(pendingEmail);
+        // Optional — only present if the user just registered in this
+        // browser. If missing (e.g. they closed the tab and came back),
+        // verification still works, it just won't auto-login afterward.
+        setVerificationToken(localStorage.getItem('pendingVerificationToken'));
 
         setOtp(Array(6).fill(""));
         setTimer(30);
@@ -74,27 +79,37 @@ export default function OtpPage() {
         try {
             const response = await api.post("/auth/verify-email", {
                 email: email,
-                otpCode: otpCode
+                otpCode: otpCode,
+                ...(verificationToken ? { verificationToken } : {}),
             });
 
             if (response.data.success) {
-                // ✅ Clear the pending email from storage
+                // ✅ Clear the pending verification state
                 localStorage.removeItem('pendingVerificationEmail');
-                
-                // ✅ Store the access token if returned
-                if (response.data.data.access_token) {
-                    localStorage.setItem('access_token', response.data.data.access_token);
-                    localStorage.setItem('user', JSON.stringify(response.data.data.user));
+                localStorage.removeItem('pendingVerificationToken');
+
+                const accessToken = response.data.data?.access_token;
+
+                if (accessToken) {
+                    // AuthProvider.checkAuth() reads this exact key on
+                    // load, so store it there (not 'access_token') and
+                    // do a full navigation so it re-runs and picks the
+                    // session up.
+                    localStorage.setItem('token', accessToken);
+                    toast.success("Email verified! Logging you in...");
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    // No token in the response (e.g. this OTP page was
+                    // opened without a verification_token, so the
+                    // backend just confirmed the email) — fall back to
+                    // asking them to log in manually.
+                    toast.success("Email verified successfully! Redirecting...");
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 1500);
                 }
-                
-                // ✅ Show success and redirect
-                toast.success("Email verified successfully! Redirecting...");
-                
-                // Redirect to dashboard or login page
-                setTimeout(() => {
-                    navigate('/login'); // or '/login' if you want them to login manually
-                }, 1500);
-                
             }
         } catch (err: any) {
             console.error("OTP verification error:", err);
