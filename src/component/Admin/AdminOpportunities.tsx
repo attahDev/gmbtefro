@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { useLiveSignal } from "../../lib/useLiveSignal";
+import { ACADEMY_SCHOOLS, schoolLabel } from "../../lib/academySchools";
 
 type OpportunityRow = {
   id: string;
@@ -17,6 +18,7 @@ type OpportunityRow = {
   postedAt: string;
   isActive: boolean;
   isFeatured: boolean;
+  requiredSchool: string | null;
 };
 
 const EMPTY = {
@@ -29,6 +31,7 @@ const EMPTY = {
   applyUrl: "",
   imageUrl: "",
   isFeatured: false,
+  requiredSchool: "",
 };
 
 const CATEGORY_SUGGESTIONS = ["Jobs", "Internships", "Grants", "Fellowships", "Scholarships", "Competitions"];
@@ -80,6 +83,7 @@ export default function AdminOpportunities() {
         applyUrl: form.applyUrl,
         imageUrl: form.imageUrl || undefined,
         isFeatured: form.isFeatured,
+        requiredSchool: form.requiredSchool || undefined,
       });
       setForm(EMPTY);
       load();
@@ -100,6 +104,7 @@ export default function AdminOpportunities() {
       applyUrl: op.applyUrl ?? "",
       imageUrl: op.imageUrl ?? "",
       isFeatured: op.isFeatured,
+      requiredSchool: op.requiredSchool ?? "",
     });
   };
 
@@ -116,6 +121,7 @@ export default function AdminOpportunities() {
         applyUrl: editForm.applyUrl,
         imageUrl: editForm.imageUrl,
         isFeatured: editForm.isFeatured,
+        requiredSchool: editForm.requiredSchool || null,
       });
       setEditingId(null);
       load();
@@ -204,6 +210,19 @@ export default function AdminOpportunities() {
             onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="rounded border border-gray-300 px-2 py-1 text-sm"
           />
+          <select
+            value={form.requiredSchool}
+            onChange={(e) => setForm({ ...form, requiredSchool: e.target.value })}
+            title="Restrict this opportunity to holders of a specific School's certification"
+            className="rounded border border-gray-300 px-2 py-1 text-sm"
+          >
+            <option value="">Open to everyone (no certification required)</option>
+            {ACADEMY_SCHOOLS.map((s) => (
+              <option key={s.value} value={s.value}>
+                Requires: {s.label} certification
+              </option>
+            ))}
+          </select>
           <input
             placeholder="Image URL (optional)"
             value={form.imageUrl}
@@ -317,6 +336,19 @@ export default function AdminOpportunities() {
                       placeholder="Type"
                       className="rounded border border-gray-300 px-2 py-1 text-sm"
                     />
+                    <select
+                      value={editForm.requiredSchool}
+                      onChange={(e) => setEditForm({ ...editForm, requiredSchool: e.target.value })}
+                      title="Restrict this opportunity to holders of a specific School's certification"
+                      className="rounded border border-gray-300 px-2 py-1 text-sm"
+                    >
+                      <option value="">Open to everyone (no certification required)</option>
+                      {ACADEMY_SCHOOLS.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          Requires: {s.label} certification
+                        </option>
+                      ))}
+                    </select>
                     <input
                       value={editForm.imageUrl}
                       onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
@@ -379,6 +411,7 @@ export default function AdminOpportunities() {
                     </p>
                     <p className="text-xs text-gray-500">
                       {op.category || "Uncategorised"} · {op.location || "Remote/unspecified"}
+                      {op.requiredSchool && ` · Requires: ${schoolLabel(op.requiredSchool)}`}
                       {!op.isActive && " · Removed"}
                     </p>
                   </div>

@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { ACADEMY_SCHOOLS, schoolLabel } from "../../lib/academySchools";
 
 type Course = {
   id: string;
@@ -7,6 +8,7 @@ type Course = {
   description: string | null;
   slug: string;
   category: string;
+  school: string | null;
   tags: string[];
   isFeatured: boolean;
   totalModules: number;
@@ -37,7 +39,7 @@ type CourseModule = {
   content?: ModuleContent;
 };
 
-const EMPTY_COURSE = { title: "", description: "", category: "climate", tagsText: "", isFeatured: false };
+const EMPTY_COURSE = { title: "", description: "", category: "climate", school: "", tagsText: "", isFeatured: false };
 
 // One section in the chapter builder — plain strings in the form, turned
 // into the ModuleContentDto shape the backend expects only on submit.
@@ -94,7 +96,7 @@ export default function AdminCourses() {
 
   // Editing a course's title/description/category/tags/featured
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", tagsText: "", isFeatured: false });
+  const [editForm, setEditForm] = useState({ title: "", description: "", tagsText: "", isFeatured: false, school: "" });
 
   // Expanded course's chapter list, for editing/removing chapters
   const [coursesLoadError, setCoursesLoadError] = useState(false);
@@ -125,6 +127,7 @@ export default function AdminCourses() {
         title: form.title,
         description: form.description || undefined,
         category: form.category,
+        school: form.category === "education" ? form.school || undefined : undefined,
         tags: splitLines(form.tagsText.replace(/,/g, "\n")),
         isFeatured: form.isFeatured,
       });
@@ -142,6 +145,7 @@ export default function AdminCourses() {
       description: c.description ?? "",
       tagsText: c.tags.join(", "),
       isFeatured: c.isFeatured,
+      school: c.school ?? "",
     });
   };
 
@@ -153,6 +157,7 @@ export default function AdminCourses() {
         description: editForm.description,
         tags: splitLines(editForm.tagsText.replace(/,/g, "\n")),
         isFeatured: editForm.isFeatured,
+        ...(editForm.school !== undefined && { school: editForm.school || null }),
       });
       setEditingCourseId(null);
       load();
@@ -381,6 +386,21 @@ export default function AdminCourses() {
             <option value="climate">Climate (Green Impact)</option>
             <option value="education">Education (Academy)</option>
           </select>
+          {form.category === "education" && (
+            <select
+              value={form.school}
+              onChange={(e) => setForm({ ...form, school: e.target.value })}
+              title="Which Academy School this course belongs to"
+              className="rounded border border-gray-300 px-2 py-1 text-sm"
+            >
+              <option value="">No School (uncategorised Academy course)</option>
+              {ACADEMY_SCHOOLS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          )}
           <input
             placeholder="Description (optional)"
             value={form.description}
@@ -666,6 +686,20 @@ export default function AdminCourses() {
                             placeholder="Tags, comma-separated"
                             className="rounded border border-gray-300 px-2 py-1 text-sm"
                           />
+                          {c.category === "education" && (
+                            <select
+                              value={editForm.school}
+                              onChange={(e) => setEditForm({ ...editForm, school: e.target.value })}
+                              className="rounded border border-gray-300 px-2 py-1 text-sm"
+                            >
+                              <option value="">No School</option>
+                              {ACADEMY_SCHOOLS.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
                           <label className="flex items-center gap-2 text-xs text-gray-600">
                             <input
                               type="checkbox"
@@ -681,7 +715,12 @@ export default function AdminCourses() {
                         </>
                       )}
                     </td>
-                    <td className="py-2 pr-3">{c.category}</td>
+                    <td className="py-2 pr-3">
+                      {c.category}
+                      {c.school && (
+                        <div className="text-xs text-gray-500">{schoolLabel(c.school)}</div>
+                      )}
+                    </td>
                     <td className="py-2 pr-3 text-xs text-gray-500">{c.tags?.join(", ") || "—"}</td>
                     <td className="py-2 pr-3">{c.totalModules}</td>
                     <td className="py-2 pr-3">{c.isActive ? "Active" : "Removed"}</td>

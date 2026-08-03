@@ -1,6 +1,7 @@
 import { Bookmark, Clock3, Eye, MapPin, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { JobCardData } from "./types/jobs";
+import { schoolLabel } from "../../../../lib/academySchools";
 
 type JobCardProps = {
   job: JobCardData;
@@ -19,12 +20,19 @@ export default function JobCard({ job }: JobCardProps) {
           </p>
         </div>
 
-        {job.isFeatured && (
-          <div className="inline-flex w-fit shrink-0 items-center gap-1 self-start rounded-full bg-[#F8F0D2] px-3 py-1.5 text-xs font-medium text-[#8A6A00] sm:py-2 sm:text-[14px]">
-            <Sparkles size={14} className="fill-[#8A6A00] text-[#8A6A00]" />
-            Featured
-          </div>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          {job.isFeatured && (
+            <div className="inline-flex w-fit items-center gap-1 self-start rounded-full bg-[#F8F0D2] px-3 py-1.5 text-xs font-medium text-[#8A6A00] sm:py-2 sm:text-[14px]">
+              <Sparkles size={14} className="fill-[#8A6A00] text-[#8A6A00]" />
+              Featured
+            </div>
+          )}
+          {job.requiredSchool && (
+            <div className="inline-flex w-fit items-center rounded-full bg-[#001F3F]/10 px-3 py-1 text-xs font-medium text-[#001F3F]">
+              Requires {schoolLabel(job.requiredSchool)}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] text-[#6A7282]">

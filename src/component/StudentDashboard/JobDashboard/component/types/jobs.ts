@@ -17,6 +17,7 @@ export type Opportunity = {
   provider: string | null;
   postedAt: string;
   isFeatured: boolean;
+  requiredSchool: string | null;
 };
 
 // Shape the card/detail UI actually renders. Kept separate from
@@ -36,4 +37,5 @@ export type JobCardData = {
   applyUrl: string;
   isFeatured: boolean;
   source: OpportunitySource | "dummy";
+  requiredSchool?: string | null;
 };

@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import JobCard from "./component/JobCard";
 import JobsFilterSidebar from "./component/JobsFilterSidebar";
 import { dummyJobs } from "./component/lib/dummyJobs";
-import { fetchOpportunities, fetchOpportunityCategories } from "./component/lib/jobs";
+import { fetchOpportunities, fetchOpportunityCategories, fetchOpportunitySchools } from "./component/lib/jobs";
 import type { JobCardData } from "./component/types/jobs";
 import { useLiveSignal } from "../../../lib/useLiveSignal";
 
@@ -23,6 +23,9 @@ export default function JobOpportunitiesPage() {
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [schools, setSchools] = useState<string[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [eligibleOnly, setEligibleOnly] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const liveTick = useLiveSignal(["opportunities:updated"]);
@@ -34,6 +37,9 @@ export default function JobOpportunitiesPage() {
     fetchOpportunityCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
+    fetchOpportunitySchools()
+      .then(setSchools)
+      .catch(() => setSchools([]));
   }, []);
 
   useEffect(() => {
@@ -44,7 +50,7 @@ export default function JobOpportunitiesPage() {
     if (!hasLoadedOnce) setLoading(true);
     setLoadError(false);
 
-    fetchOpportunities({ search, category: selectedCategory })
+    fetchOpportunities({ search, category: selectedCategory, school: selectedSchool, eligibleOnly })
       .then((results) => {
         if (cancelled) return;
         // Real data (even an empty result set for a specific search) always
@@ -75,7 +81,7 @@ export default function JobOpportunitiesPage() {
     // whether to show the loading spinner, not something that should
     // itself retrigger a fetch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, selectedCategory, liveTick]);
+  }, [search, selectedCategory, selectedSchool, eligibleOnly, liveTick]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -148,6 +154,11 @@ export default function JobOpportunitiesPage() {
             jobTypes={jobTypeOptions}
             selectedJobTypes={selectedJobTypes}
             onToggleJobType={toggleJobType}
+            schools={schools}
+            selectedSchool={selectedSchool}
+            onSelectSchool={setSelectedSchool}
+            eligibleOnly={eligibleOnly}
+            onToggleEligibleOnly={() => setEligibleOnly((prev) => !prev)}
           />
         </div>
 

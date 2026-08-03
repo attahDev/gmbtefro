@@ -4,6 +4,7 @@ import { BookOpen, Search, SlidersHorizontal } from "lucide-react";
 import DashboardBreadcrumb from "../../ui/DashboardBreadcrumb";
 import { CourseCard } from "../../ClimateDashboard/Component/CourseCard";
 import { fetchCourses } from "../../../../lib/coursesApi";
+import { ACADEMY_SCHOOLS } from "../../../../lib/academySchools";
 import type { SustainabilityCourse } from "../../ClimateDashboard/types/sustainability";
 
 const ACADEMY_BASE_PATH = "/dashboard/academy/courses";
@@ -12,15 +13,36 @@ export default function AcademyAllCourses() {
   const [courses, setCourses] = useState<SustainabilityCourse[] | null>(null);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeSchool, setActiveSchool] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    fetchCourses("education")
+    setCourses(null);
+    fetchCourses("education", activeSchool || undefined)
       .then((data) => {
         if (!cancelled) setCourses(data);
       })
       .catch(() => {
         if (!cancelled) setCourses([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSchool]);
+
+  // Which Schools actually have published courses right now — no point
+  // showing a School chip for one with nothing in it yet.
+  const [availableSchools, setAvailableSchools] = useState<string[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchCourses("education")
+      .then((all) => {
+        if (cancelled) return;
+        const present = new Set(all.map((c) => c.school).filter((s): s is string => Boolean(s)));
+        setAvailableSchools(ACADEMY_SCHOOLS.filter((s) => present.has(s.value)).map((s) => s.value));
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableSchools([]);
       });
     return () => {
       cancelled = true;
@@ -100,6 +122,36 @@ export default function AcademyAllCourses() {
               className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 sm:py-3 pl-10 pr-4 text-sm sm:text-base text-[#001F3F] outline-none transition placeholder:text-[#94A3B8] focus:border-[#001F3F] focus:ring-2 focus:ring-[#001F3F]/10"
             />
           </div>
+
+          {availableSchools.length > 0 && (
+            <div className="flex items-start gap-2 sm:gap-3 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+              <button
+                type="button"
+                onClick={() => setActiveSchool("")}
+                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition ${
+                  activeSchool === ""
+                    ? "bg-[#001F3F] text-[#FFD700]"
+                    : "bg-white border border-[#001F3F]/20 text-[#001F3F] hover:bg-[#F1F5F9]"
+                }`}
+              >
+                All Schools
+              </button>
+              {ACADEMY_SCHOOLS.filter((s) => availableSchools.includes(s.value)).map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => setActiveSchool(s.value)}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition ${
+                    activeSchool === s.value
+                      ? "bg-[#001F3F] text-[#FFD700]"
+                      : "bg-white border border-[#001F3F]/20 text-[#001F3F] hover:bg-[#F1F5F9]"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-start gap-2 sm:gap-3 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             <div className="hidden sm:flex items-center gap-1.5 text-[#64748B] text-sm mr-1 shrink-0 pt-2">

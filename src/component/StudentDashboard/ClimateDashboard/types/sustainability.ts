@@ -63,4 +63,7 @@ export type SustainabilityCourse = {
   // pass straight through from the backend Course row.
   tags: string[];
   isFeatured: boolean;
+  // Academy-only: which School this course belongs to (e.g. "aws"). Null
+  // for Green Impact courses and uncategorised Academy courses.
+  school?: string | null;
 };

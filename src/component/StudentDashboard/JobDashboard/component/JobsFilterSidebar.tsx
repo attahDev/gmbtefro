@@ -1,3 +1,5 @@
+import { schoolLabel } from "../../../../lib/academySchools";
+
 type JobsFilterSidebarProps = {
   total: number;
   categories: string[];
@@ -6,6 +8,11 @@ type JobsFilterSidebarProps = {
   jobTypes: string[];
   selectedJobTypes: string[];
   onToggleJobType: (value: string) => void;
+  schools: string[];
+  selectedSchool: string;
+  onSelectSchool: (value: string) => void;
+  eligibleOnly: boolean;
+  onToggleEligibleOnly: () => void;
 };
 
 export default function JobsFilterSidebar({
@@ -16,6 +23,11 @@ export default function JobsFilterSidebar({
   jobTypes,
   selectedJobTypes,
   onToggleJobType,
+  schools,
+  selectedSchool,
+  onSelectSchool,
+  eligibleOnly,
+  onToggleEligibleOnly,
 }: JobsFilterSidebarProps) {
   return (
     <aside className="h-auto rounded-[18px] border border-[#EFD97A] bg-[#FFFDF7] px-4 py-5 shadow-[0px_2px_4px_-1px_rgba(0,31,63,0.06),0px_4px_6px_-1px_rgba(0,31,63,0.10)] sm:px-6 sm:py-6 lg:px-8 lg:py-8">
@@ -53,6 +65,48 @@ export default function JobsFilterSidebar({
           ))}
         </div>
       </div>
+
+      {schools.length > 0 && (
+        <div className="mt-8">
+          <p className="text-[14px] font-semibold text-[#001F3F]">Certification</p>
+          <div className="mt-4 space-y-2">
+            <button
+              type="button"
+              onClick={() => onSelectSchool("")}
+              className={`block w-full rounded-[8px] px-3 py-2 text-left text-[14px] ${
+                selectedSchool === ""
+                  ? "bg-[#001F3F] text-white"
+                  : "bg-[#F5F7FB] text-[#4A5565] hover:bg-[#EEF1F6]"
+              }`}
+            >
+              Any
+            </button>
+            {schools.map((school) => (
+              <button
+                key={school}
+                type="button"
+                onClick={() => onSelectSchool(school)}
+                className={`block w-full rounded-[8px] px-3 py-2 text-left text-[14px] ${
+                  selectedSchool === school
+                    ? "bg-[#001F3F] text-white"
+                    : "bg-[#F5F7FB] text-[#4A5565] hover:bg-[#EEF1F6]"
+                }`}
+              >
+                Requires {schoolLabel(school)}
+              </button>
+            ))}
+          </div>
+          <label className="mt-3 flex items-center gap-2.5 text-[14px] text-[#333]">
+            <input
+              type="checkbox"
+              checked={eligibleOnly}
+              onChange={onToggleEligibleOnly}
+              className="h-4 w-4 rounded border-[#D1D5DB]"
+            />
+            Only show ones I'm certified for
+          </label>
+        </div>
+      )}
 
       {jobTypes.length > 0 && (
         <div className="mt-8">

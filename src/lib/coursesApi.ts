@@ -11,6 +11,7 @@ type BackendCourse = {
   title: string;
   description: string | null;
   category: string | null;
+  school: string | null;
   tags: string[];
   isFeatured: boolean;
   metadata: Record<string, any> | null;
@@ -58,13 +59,18 @@ function toCourse(course: BackendCourse, modules: BackendModule[] = []): Sustain
     lessons: modules.sort((a, b) => a.order - b.order).map(toLesson),
     finalProject: m.finalProject,
     tags: course.tags ?? [],
+    school: course.school ?? null,
     isFeatured: course.isFeatured ?? false,
   };
 }
 
-/** category: 'climate' for Green Impact, 'education' for Academy. */
-export async function fetchCourses(category: "climate" | "education"): Promise<SustainabilityCourse[]> {
-  const { data } = await api.get(`/courses`, { params: { category } });
+/** category: 'climate' for Green Impact, 'education' for Academy.
+ *  school: Academy-only — filter to one School (e.g. "aws"). */
+export async function fetchCourses(
+  category: "climate" | "education",
+  school?: string,
+): Promise<SustainabilityCourse[]> {
+  const { data } = await api.get(`/courses`, { params: { category, school: school || undefined } });
   const courses: BackendCourse[] = data?.data ?? data;
 
   if (courses.length === 0) return [];

@@ -37,12 +37,15 @@ export function transformOpportunity(op: Opportunity): JobCardData {
     applyUrl: op.applyUrl || "#",
     isFeatured: op.isFeatured,
     source: op.source,
+    requiredSchool: op.requiredSchool,
   };
 }
 
 type FetchOpportunitiesParams = {
   search?: string;
   category?: string;
+  school?: string;
+  eligibleOnly?: boolean;
 };
 
 type ApiResponse<T> = {
@@ -61,6 +64,8 @@ export async function fetchOpportunities(
       params: {
         search: params.search || undefined,
         category: params.category || undefined,
+        school: params.school || undefined,
+        eligibleOnly: params.eligibleOnly ? "true" : undefined,
       },
     }
   );
@@ -73,6 +78,14 @@ export async function fetchOpportunities(
 export async function fetchOpportunityCategories(): Promise<string[]> {
   const { data } = await api.get<ApiResponse<string[]>>(
     "/opportunities/categories"
+  );
+
+  return Array.isArray(data.data) ? data.data : [];
+}
+
+export async function fetchOpportunitySchools(): Promise<string[]> {
+  const { data } = await api.get<ApiResponse<string[]>>(
+    "/opportunities/schools"
   );
 
   return Array.isArray(data.data) ? data.data : [];

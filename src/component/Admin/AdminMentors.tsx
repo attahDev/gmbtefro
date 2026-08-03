@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { ACADEMY_SCHOOLS } from "../../lib/academySchools";
 
 type Mentor = {
   id: string;
@@ -11,6 +12,7 @@ type Mentor = {
   isActive: boolean;
   userId: string | null;
   category: string;
+  schools: string[];
 };
 
 type Spotlight = {
@@ -86,6 +88,14 @@ export default function AdminMentors() {
   const changeCategory = async (m: Mentor, category: string) => {
     if (!category || category === m.category) return;
     await api.patch(`/mentors/${m.id}`, { category });
+    load();
+  };
+
+  const toggleMentorSchool = async (m: Mentor, school: string) => {
+    const schools = m.schools.includes(school)
+      ? m.schools.filter((s) => s !== school)
+      : [...m.schools, school];
+    await api.patch(`/mentors/${m.id}`, { schools });
     load();
   };
 
@@ -206,6 +216,7 @@ export default function AdminMentors() {
                 <th className="py-2 pr-3">Role</th>
                 <th className="py-2 pr-3">Company</th>
                 <th className="py-2 pr-3">Category</th>
+                <th className="py-2 pr-3">Review access</th>
                 <th className="py-2 pr-3">Account</th>
                 <th className="py-2 pr-3">Status</th>
                 <th className="py-2">Actions</th>
@@ -231,6 +242,39 @@ export default function AdminMentors() {
                         ),
                       )}
                     </select>
+                  </td>
+                  <td className="py-2 pr-3">
+                    <div className="flex max-w-[220px] flex-wrap gap-1.5">
+                      {m.schools.length === 0 && (
+                        <span
+                          title="Can review any School's certification project"
+                          className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700"
+                        >
+                          Unrestricted
+                        </span>
+                      )}
+                      {ACADEMY_SCHOOLS.map((s) => {
+                        const checked = m.schools.includes(s.value);
+                        return (
+                          <label
+                            key={s.value}
+                            className={`cursor-pointer rounded border px-1.5 py-0.5 text-xs ${
+                              checked
+                                ? "border-[#001F3F] bg-[#001F3F] text-white"
+                                : "border-gray-300 text-gray-500"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleMentorSchool(m, s.value)}
+                              className="sr-only"
+                            />
+                            {s.label}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </td>
                   <td className="py-2 pr-3">
                     {m.userId ? (
