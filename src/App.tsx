@@ -18,6 +18,7 @@ import SignupModal from './component/Authentication/Signup';
 import ForgotPasswordModal from './component/Authentication/forgot-Password';
 import DashboardIndex from './component/StudentDashboard/DashboardIndex';
 import { EventSectionIndex } from './component/StudentDashboard/EventSection/EventSection';
+import { MyEventsSectionIndex } from './component/StudentDashboard/EventSection/MyEventsSection';
 import { AuthProvider } from './contexts/mainuserContext';
 import { MentorChatProvider } from './contexts/mentorChatContext';
 import "./index.css";
@@ -207,6 +208,7 @@ function AppLayout() {
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="community" element={<CommunityPage />} />
             <Route path="events" element={<EventSectionIndex />} />
+            <Route path="events/mine" element={<MyEventsSectionIndex />} />
             <Route path="mentors" element={<MentorsRouteSwitch />} />
             <Route path="mentors-ai" element={<MentorIndexAI />} />
             <Route path="profile" element={<ProfilePage />} />
@@ -227,6 +229,7 @@ function AppLayout() {
 
             <Route path="opportunity-insights" element={<MRDashboardSection />} />
             <Route path="business-plan" element={<BPTabs />} />
+            <Route path="business-plan/:planId" element={<BPTabs />} />
 
 
             <Route path="services" element={<Navigate to="/dashboard/business" replace />} />

@@ -16,6 +16,8 @@ export type BackendEvent = {
   imageUrl: string | null;
   mode: string | null;
   link: string | null;
+  eventbriteEventId: string | null;
+  eventbriteAttendeeCount: number | null;
   tags: string[];
   startsAt: string;
   endsAt: string | null;
@@ -43,6 +45,8 @@ export type UiEvent = {
   format: EventFormat;
   location: string | null;
   link: string | null;
+  eventbriteEventId: string | null;
+  eventbriteAttendeeCount: number | null;
   tags: string[];
   image: string;
   isFeatured: boolean;
@@ -100,6 +104,8 @@ function toUiEvent(event: BackendEvent): UiEvent {
     format: formatFor(event),
     location: event.location,
     link: event.link,
+    eventbriteEventId: event.eventbriteEventId ?? null,
+    eventbriteAttendeeCount: event.eventbriteAttendeeCount ?? null,
     tags: event.tags ?? [],
     image: event.imageUrl ?? placeholderImageFor(event.id),
     isFeatured: event.isFeatured,
@@ -159,6 +165,49 @@ export async function rsvpToEvent(eventId: string) {
   return data;
 }
 
+/** "My Events" → Attending → Cancel RSVP. Only clears GMBTE's own record —
+ *  if the event links out to Eventbrite, this doesn't cancel a real
+ *  Eventbrite ticket, which has to be managed there directly. */
+export async function cancelRsvp(eventId: string) {
+  const { data } = await api.delete(`/events/${eventId}/rsvp`);
+  return data;
+}
+
+export type EventAttendee = {
+  userId: string;
+  name: string;
+  email: string;
+  status: "SAVED" | "REGISTERED";
+  viaEventbrite: boolean;
+  registeredAt: string;
+};
+
+/** Admin's "expected invitees" list — everyone who's RSVP'd OR saved
+ *  through GMBTE (both count toward `count` now), plus Eventbrite's own
+ *  confirmed count if the event is linked. `eventbriteCount` is null when
+ *  there's no linked event or no synced number yet — use "Sync now"
+ *  (syncEventbriteAttendees) to populate it. */
+export async function fetchEventAttendees(eventId: string): Promise<{
+  eventId: string;
+  eventTitle: string;
+  count: number;
+  gmbteCount: number;
+  eventbriteEventId: string | null;
+  eventbriteCount: number | null;
+  eventbriteSyncedAt: string | null;
+  attendees: EventAttendee[];
+}> {
+  const { data } = await api.get(`/events/admin/${eventId}/attendees`);
+  return data?.data ?? data;
+}
+
+/** Admin's "Sync now" button — pulls a fresh confirmed-attendee count from
+ *  Eventbrite for a linked event. */
+export async function syncEventbriteAttendees(eventId: string) {
+  const { data } = await api.post(`/events/admin/${eventId}/eventbrite/sync`);
+  return data?.data ?? data;
+}
+
 export async function saveEvent(eventId: string) {
   const { data } = await api.post(`/events/${eventId}/save`);
   return data;
@@ -175,6 +224,7 @@ export type CommunityEventInput = {
   location?: string;
   mode?: EventFormat;
   link?: string;
+  eventbriteUrl?: string;
   tags?: string[];
   startsAt: string; // ISO
   endsAt?: string; // ISO
@@ -192,6 +242,7 @@ export async function submitCommunityEvent(input: CommunityEventInput) {
   if (input.location) form.append("location", input.location);
   if (input.mode) form.append("mode", input.mode);
   if (input.link) form.append("link", input.link);
+  if (input.eventbriteUrl) form.append("eventbriteUrl", input.eventbriteUrl);
   if (input.tags?.length) form.append("tags", input.tags.join(","));
   form.append("startsAt", input.startsAt);
   if (input.endsAt) form.append("endsAt", input.endsAt);
@@ -211,4 +262,36 @@ export async function fetchMySubmissions(): Promise<UiSubmission[]> {
   const { data } = await api.get("/events/community/mine");
   const events: (BackendEvent & { reviewStatus: SubmissionStatus })[] = data?.data ?? data;
   return events.map((e) => ({ ...toUiEvent(e), reviewStatus: e.reviewStatus }));
+}
+
+/** "My Events" → Hosting → Edit. Same field set as submitCommunityEvent —
+ *  every field optional since it's a partial update. Editing sends the
+ *  event back to PENDING review on the backend regardless of prior state,
+ *  so it disappears from public listings until an admin re-approves. */
+export async function updateMySubmission(
+  eventId: string,
+  input: Partial<CommunityEventInput>,
+) {
+  const form = new FormData();
+  if (input.title !== undefined) form.append("title", input.title);
+  if (input.description !== undefined) form.append("description", input.description);
+  if (input.location !== undefined) form.append("location", input.location);
+  if (input.mode !== undefined) form.append("mode", input.mode);
+  if (input.link !== undefined) form.append("link", input.link);
+  if (input.eventbriteUrl !== undefined) form.append("eventbriteUrl", input.eventbriteUrl);
+  if (input.tags !== undefined) form.append("tags", input.tags.join(","));
+  if (input.startsAt !== undefined) form.append("startsAt", input.startsAt);
+  if (input.endsAt !== undefined) form.append("endsAt", input.endsAt);
+  if (input.image) form.append("image", input.image);
+
+  const { data } = await api.patch(`/events/community/mine/${eventId}`, form);
+  return data;
+}
+
+/** "My Events" → Hosting → Withdraw. Hard-deletes the submission — any
+ *  existing RSVPs/saves on it go with it, with no separate warning beyond
+ *  the confirm step in the UI. */
+export async function withdrawMySubmission(eventId: string) {
+  const { data } = await api.delete(`/events/community/mine/${eventId}`);
+  return data;
 }

@@ -49,7 +49,7 @@ export default function CommunityPage() {
 
   useEffect(load, []);
 
-  const pendingOrRejected = useMemo(
+  const flaggedOrRejected = useMemo(
     () => (mine ?? []).filter((p) => p.status !== "APPROVED"),
     [mine]
   );
@@ -67,25 +67,29 @@ export default function CommunityPage() {
           onPosted={load}
         />
 
-        {pendingOrRejected.length > 0 && (
+        {flaggedOrRejected.length > 0 && (
           <div className="mt-6 space-y-2">
-            {pendingOrRejected.map((p) => (
+            {flaggedOrRejected.map((p) => (
               <div
                 key={p.id}
                 className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
-                  p.status === "PENDING"
+                  p.status === "FLAGGED" || p.status === "PENDING"
                     ? "bg-amber-50 text-amber-800"
                     : "bg-red-50 text-red-700"
                 }`}
               >
-                {p.status === "PENDING" ? (
+                {p.status === "FLAGGED" || p.status === "PENDING" ? (
                   <Clock className="h-4 w-4 shrink-0" />
                 ) : (
                   <XCircle className="h-4 w-4 shrink-0" />
                 )}
                 <span className="font-medium">{p.title}</span>
                 <span className="text-xs opacity-75">
-                  {p.status === "PENDING" ? "— awaiting admin approval" : "— not approved"}
+                  {p.status === "FLAGGED"
+                    ? "— pulled from the feed, awaiting admin review"
+                    : p.status === "PENDING"
+                    ? "— awaiting admin approval"
+                    : "— removed"}
                 </span>
               </div>
             ))}
@@ -141,7 +145,7 @@ function Composer({ authorName, onPosted }: { authorName: string; onPosted: () =
     setSubmitting(true);
     try {
       await createCommunityPost({ title, description, image });
-      setMessage("Posted! It'll show up in the feed once an admin approves it.");
+      setMessage("Posted! It's live in the feed now.");
       reset();
       onPosted();
     } catch {
@@ -369,15 +373,13 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
 
 function CommentThread({ postId }: { postId: string }) {
   const [comments, setComments] = useState<CommunityComment[] | null>(null);
-  const [loadError, setLoadError] = useState(false);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setLoadError(false);
     fetchComments(postId)
       .then(setComments)
-      .catch(() => setLoadError(true));
+      .catch(() => setComments([]));
   }, [postId]);
 
   const submit = async () => {
@@ -396,23 +398,21 @@ function CommentThread({ postId }: { postId: string }) {
 
   return (
     <div className="mt-4 border-t border-gray-100 pt-4 space-y-3">
-      {comments === null && !loadError && <p className="text-xs text-gray-400">Loading comments…</p>}
-      {loadError && <p className="text-xs text-red-500">Couldn't load comments — try again in a moment.</p>}
+      {comments === null && <p className="text-xs text-gray-400">Loading comments…</p>}
       {comments?.length === 0 && <p className="text-xs text-gray-400">No comments yet — say something.</p>}
-      {comments?.map((c) => {
-        const name = c.user ? `${c.user.firstname} ${c.user.lastname}` : "Deleted user";
-        return (
-          <div key={c.id} className="flex gap-2 text-sm">
-            <div className="h-6 w-6 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-semibold text-gray-600">
-              {initials(name)}
-            </div>
-            <div>
-              <span className="font-semibold text-gray-900 mr-1.5">{name}</span>
-              <span className="text-gray-600">{c.content}</span>
-            </div>
+      {comments?.map((c) => (
+        <div key={c.id} className="flex gap-2 text-sm">
+          <div className="h-6 w-6 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-semibold text-gray-600">
+            {initials(`${c.author.firstname} ${c.author.lastname}`)}
           </div>
-        );
-      })}
+          <div>
+            <span className="font-semibold text-gray-900 mr-1.5">
+              {c.author.firstname} {c.author.lastname}
+            </span>
+            <span className="text-gray-600">{c.content}</span>
+          </div>
+        </div>
+      ))}
 
       <div className="flex items-center gap-2 pt-1">
         <input

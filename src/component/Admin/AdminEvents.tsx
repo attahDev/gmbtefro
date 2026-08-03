@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { fetchEventAttendees, syncEventbriteAttendees, type EventAttendee } from "../../lib/eventsApi";
 
 type EventRecap = {
   summary: string;
@@ -16,6 +17,8 @@ type EventRow = {
   imageUrl: string | null;
   mode: string | null;
   link: string | null;
+  eventbriteEventId: string | null;
+  eventbriteAttendeeCount: number | null;
   tags: string[];
   startsAt: string;
   endsAt: string | null;
@@ -39,6 +42,8 @@ const EMPTY = {
   imageUrl: "",
   mode: "In-Person",
   link: "",
+  eventbriteUrl: "",
+  publishToEventbrite: false,
   tagsText: "",
   startsAt: "",
   endsAt: "",
@@ -72,6 +77,41 @@ export default function AdminEvents() {
   const [recapKeepGallery, setRecapKeepGallery] = useState<string[]>([]);
   const [recapNewFiles, setRecapNewFiles] = useState<File[]>([]);
   const [recapSubmitting, setRecapSubmitting] = useState(false);
+
+  const [attendeesFor, setAttendeesFor] = useState<{
+    eventId: string;
+    eventTitle: string;
+    count: number;
+    gmbteCount: number;
+    eventbriteEventId: string | null;
+    eventbriteCount: number | null;
+    eventbriteSyncedAt: string | null;
+    attendees: EventAttendee[];
+  } | null>(null);
+  const [attendeesLoading, setAttendeesLoading] = useState(false);
+  const [attendeesError, setAttendeesError] = useState(false);
+  const [syncingEventbrite, setSyncingEventbrite] = useState(false);
+
+  const viewAttendees = (eventId: string) => {
+    setAttendeesLoading(true);
+    setAttendeesError(false);
+    fetchEventAttendees(eventId)
+      .then(setAttendeesFor)
+      .catch(() => setAttendeesError(true))
+      .finally(() => setAttendeesLoading(false));
+  };
+
+  const syncNow = async (eventId: string) => {
+    setSyncingEventbrite(true);
+    try {
+      await syncEventbriteAttendees(eventId);
+      await viewAttendees(eventId);
+    } catch {
+      setAttendeesError(true);
+    } finally {
+      setSyncingEventbrite(false);
+    }
+  };
 
   const load = () => {
     api
@@ -128,6 +168,8 @@ export default function AdminEvents() {
         if (form.location) fd.append("location", form.location);
         if (form.mode) fd.append("mode", form.mode);
         if (form.link) fd.append("link", form.link);
+        if (form.eventbriteUrl) fd.append("eventbriteUrl", form.eventbriteUrl);
+        fd.append("publishToEventbrite", String(form.publishToEventbrite));
         fd.append("tags", tags.join(","));
         fd.append("startsAt", startsAtIso);
         if (endsAtIso) fd.append("endsAt", endsAtIso);
@@ -143,6 +185,8 @@ export default function AdminEvents() {
           imageUrl: form.imageUrl || undefined,
           mode: form.mode || undefined,
           link: form.link || undefined,
+          eventbriteUrl: form.eventbriteUrl || undefined,
+          publishToEventbrite: form.publishToEventbrite,
           tags,
           startsAt: startsAtIso,
           endsAt: endsAtIso,
@@ -168,6 +212,8 @@ export default function AdminEvents() {
       imageUrl: ev.imageUrl ?? "",
       mode: ev.mode ?? "In-Person",
       link: ev.link ?? "",
+      eventbriteUrl: ev.eventbriteEventId ?? "",
+      publishToEventbrite: false,
       tagsText: ev.tags.join(", "),
       startsAt: toLocalInput(ev.startsAt),
       endsAt: toLocalInput(ev.endsAt),
@@ -190,6 +236,7 @@ export default function AdminEvents() {
         fd.append("location", editForm.location);
         fd.append("mode", editForm.mode);
         fd.append("link", editForm.link);
+        if (editForm.eventbriteUrl) fd.append("eventbriteUrl", editForm.eventbriteUrl);
         fd.append("tags", tags.join(","));
         fd.append("startsAt", startsAtIso);
         if (endsAtIso) fd.append("endsAt", endsAtIso);
@@ -205,6 +252,7 @@ export default function AdminEvents() {
           imageUrl: editForm.imageUrl,
           mode: editForm.mode,
           link: editForm.link,
+          eventbriteUrl: editForm.eventbriteUrl || undefined,
           tags,
           startsAt: startsAtIso,
           endsAt: endsAtIso,
@@ -359,6 +407,23 @@ export default function AdminEvents() {
             onChange={(e) => setForm({ ...form, link: e.target.value })}
             className="rounded border border-gray-300 px-2 py-1 text-sm"
           />
+          <input
+            placeholder="Eventbrite event URL/ID (partner-hosted event, optional)"
+            value={form.eventbriteUrl}
+            disabled={form.publishToEventbrite}
+            onChange={(e) => setForm({ ...form, eventbriteUrl: e.target.value })}
+            className="rounded border border-gray-300 px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+          />
+          <label className="flex items-center gap-2 text-xs text-gray-600 sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={form.publishToEventbrite}
+              disabled={!!form.eventbriteUrl}
+              onChange={(e) => setForm({ ...form, publishToEventbrite: e.target.checked })}
+            />
+            Also publish this as a new event on GMBTE's own Eventbrite account (only for GMBTE-hosted events —
+            leave off if this is someone else's Eventbrite listing)
+          </label>
           <input
             placeholder="Tags, comma-separated (e.g. AI/ML, Networking)"
             value={form.tagsText}
@@ -525,7 +590,13 @@ export default function AdminEvents() {
                     <input
                       value={editForm.link}
                       onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
-                      placeholder="Link (optional)"
+                      placeholder="Link — registration page, Zoom/Meet, Eventbrite (optional)"
+                      className="rounded border border-gray-300 px-2 py-1 text-sm"
+                    />
+                    <input
+                      value={editForm.eventbriteUrl}
+                      onChange={(e) => setEditForm({ ...editForm, eventbriteUrl: e.target.value })}
+                      placeholder="Eventbrite event URL/ID (optional)"
                       className="rounded border border-gray-300 px-2 py-1 text-sm"
                     />
                     <input
@@ -671,6 +742,12 @@ export default function AdminEvents() {
                       {ev.recap ? "Edit recap" : "Add recap"}
                     </button>
                     <button
+                      onClick={() => viewAttendees(ev.id)}
+                      className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600"
+                    >
+                      Attendees
+                    </button>
+                    <button
                       onClick={() => toggleActive(ev)}
                       disabled={submitting}
                       className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 disabled:opacity-50"
@@ -684,6 +761,83 @@ export default function AdminEvents() {
           </div>
         )}
       </div>
+
+      {(attendeesLoading || attendeesError || attendeesFor) && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => {
+            setAttendeesFor(null);
+            setAttendeesError(false);
+          }}
+        >
+          <div
+            className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-md bg-white p-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {attendeesLoading ? (
+              <p className="text-sm text-gray-500">Loading attendees…</p>
+            ) : attendeesError ? (
+              <p className="text-sm text-[#8A1F1F]">Couldn't load attendees — the request failed.</p>
+            ) : attendeesFor ? (
+              <>
+                <h3 className="text-sm font-semibold text-[#001F3F]">{attendeesFor.eventTitle}</h3>
+                <p className="mt-1 text-xs text-gray-400">
+                  {attendeesFor.count} total {attendeesFor.count === 1 ? "attendee" : "attendees"} —{" "}
+                  {attendeesFor.gmbteCount} RSVP'd/saved via GMBTE
+                  {attendeesFor.eventbriteEventId
+                    ? `, ${attendeesFor.eventbriteCount ?? 0} confirmed on Eventbrite`
+                    : ""}
+                </p>
+                {attendeesFor.eventbriteEventId && (
+                  <div className="mt-2 flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-2 text-xs text-gray-500">
+                    <span>
+                      Eventbrite last synced{" "}
+                      {attendeesFor.eventbriteSyncedAt
+                        ? new Date(attendeesFor.eventbriteSyncedAt).toLocaleString()
+                        : "never"}
+                    </span>
+                    <button
+                      onClick={() => syncNow(attendeesFor.eventId)}
+                      disabled={syncingEventbrite}
+                      className="rounded border border-gray-300 bg-white px-2 py-1 font-semibold text-[#001F3F] disabled:opacity-50"
+                    >
+                      {syncingEventbrite ? "Syncing…" : "Sync now"}
+                    </button>
+                  </div>
+                )}
+                {attendeesFor.attendees.length === 0 ? (
+                  <p className="mt-3 text-sm text-gray-500">No one has registered or saved this yet.</p>
+                ) : (
+                  <div className="mt-3 space-y-2">
+                    {attendeesFor.attendees.map((a) => (
+                      <div key={a.userId} className="rounded border border-gray-200 p-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-[#001F3F]">{a.name}</p>
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                            {a.status === "REGISTERED" ? "RSVP'd" : "Saved"}
+                            {a.viaEventbrite ? " · via Eventbrite" : ""}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">{a.email}</p>
+                        <p className="text-xs text-gray-400">
+                          {a.status === "REGISTERED" ? "Registered" : "Saved"}{" "}
+                          {new Date(a.registeredAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button
+                  onClick={() => setAttendeesFor(null)}
+                  className="mt-4 w-full rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-600"
+                >
+                  Close
+                </button>
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
