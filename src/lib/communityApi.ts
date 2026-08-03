@@ -22,7 +22,7 @@ export type CommunityComment = {
   postId: string;
   content: string;
   createdAt: string;
-  author: { firstname: string; lastname: string };
+  user: { firstname: string; lastname: string } | null;
 };
 
 /** GET /community/spotlight — the public, approved-only feed. */

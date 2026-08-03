@@ -399,19 +399,20 @@ function CommentThread({ postId }: { postId: string }) {
       {comments === null && !loadError && <p className="text-xs text-gray-400">Loading comments…</p>}
       {loadError && <p className="text-xs text-red-500">Couldn't load comments — try again in a moment.</p>}
       {comments?.length === 0 && <p className="text-xs text-gray-400">No comments yet — say something.</p>}
-      {comments?.map((c) => (
-        <div key={c.id} className="flex gap-2 text-sm">
-          <div className="h-6 w-6 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-semibold text-gray-600">
-            {initials(`${c.author.firstname} ${c.author.lastname}`)}
+      {comments?.map((c) => {
+        const name = c.user ? `${c.user.firstname} ${c.user.lastname}` : "Deleted user";
+        return (
+          <div key={c.id} className="flex gap-2 text-sm">
+            <div className="h-6 w-6 shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-semibold text-gray-600">
+              {initials(name)}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-900 mr-1.5">{name}</span>
+              <span className="text-gray-600">{c.content}</span>
+            </div>
           </div>
-          <div>
-            <span className="font-semibold text-gray-900 mr-1.5">
-              {c.author.firstname} {c.author.lastname}
-            </span>
-            <span className="text-gray-600">{c.content}</span>
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       <div className="flex items-center gap-2 pt-1">
         <input
