@@ -3,7 +3,7 @@ import axios from "axios";
 export const api = axios.create({
   baseURL: "https://gmbtebac.onrender.com",
   withCredentials: true,
-  timeout: 20000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {

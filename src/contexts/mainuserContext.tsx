@@ -251,6 +251,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let message = 'An unexpected error occurred';
 
     if (axios.isAxiosError(error)) {
+      // No response at all + timeout code = the request never got a
+      // reply in time, most likely the Render backend cold-starting.
+      // The account may still get created a few seconds after this
+      // fires — don't tell the person to just try again blind.
+      if (error.code === 'ECONNABORTED' || !error.response) {
+        toast.error(
+          "The server is waking up — this can take up to a minute on the first request. Please wait a moment, then check if it went through before retrying."
+        );
+        return;
+      }
+
       const errorData = error.response?.data;
 
       // Handle different error response structures
@@ -269,6 +280,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         message = 'Invalid email or password';
       } else if (error.response?.status === 403) {
         message = 'Access denied';
+      } else if (error.response?.status === 409) {
+        // Usually means an earlier attempt (often one that appeared
+        // to time out) actually went through server-side.
+        message = 'An account with this email already exists — try signing in instead.';
       }
     } else if (error instanceof Error) {
       message = error.message;

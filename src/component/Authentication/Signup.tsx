@@ -152,9 +152,20 @@ export default function SignupModal({ isOpen = true, onClose, onSuccess }: Props
             }
         } catch (err: any) {
             console.error("Registration error:", err);
-            setGeneralError(
-                err?.response?.data?.message || "Signup failed. Try again."
-            );
+
+            if (err?.code === "ECONNABORTED" || !err?.response) {
+                setGeneralError(
+                    "The server is waking up — this can take up to a minute on the first request. Please wait a moment, then check if your account went through before retrying."
+                );
+            } else if (err?.response?.status === 409) {
+                setGeneralError(
+                    "An account with this email already exists — try signing in instead."
+                );
+            } else {
+                setGeneralError(
+                    err?.response?.data?.message || "Signup failed. Try again."
+                );
+            }
         } finally {
             setLoading(false);
         }

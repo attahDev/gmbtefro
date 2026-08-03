@@ -14,9 +14,13 @@ export const useAuth = () => {
 export const api = axios.create({
   baseURL: "https://gmbtebac.onrender.com",
   withCredentials: true,
-  // Without a timeout, a hung/cold-starting backend request never
-  // resolves or rejects, so checkAuth()'s finally{} never runs and
-  // isLoading stays true forever (the "Checking authentication..."
-  // screen that never goes away).
-  timeout: 20000,
+  // Render's free tier spins the backend down after inactivity — the
+  // first request after a sleep has to cold-start it, which regularly
+  // takes 30-70s. A short timeout doesn't make that faster, it just
+  // makes the client give up before the (still-successful) response
+  // arrives — see register() below, where that showed up as a
+  // phantom "signup failed" immediately followed by "user already
+  // exists" on retry, because the first attempt had actually gone
+  // through server-side.
+  timeout: 60000,
 });
