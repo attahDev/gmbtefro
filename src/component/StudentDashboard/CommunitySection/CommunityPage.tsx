@@ -369,13 +369,15 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
 
 function CommentThread({ postId }: { postId: string }) {
   const [comments, setComments] = useState<CommunityComment[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setLoadError(false);
     fetchComments(postId)
       .then(setComments)
-      .catch(() => setComments([]));
+      .catch(() => setLoadError(true));
   }, [postId]);
 
   const submit = async () => {
@@ -394,7 +396,8 @@ function CommentThread({ postId }: { postId: string }) {
 
   return (
     <div className="mt-4 border-t border-gray-100 pt-4 space-y-3">
-      {comments === null && <p className="text-xs text-gray-400">Loading comments…</p>}
+      {comments === null && !loadError && <p className="text-xs text-gray-400">Loading comments…</p>}
+      {loadError && <p className="text-xs text-red-500">Couldn't load comments — try again in a moment.</p>}
       {comments?.length === 0 && <p className="text-xs text-gray-400">No comments yet — say something.</p>}
       {comments?.map((c) => (
         <div key={c.id} className="flex gap-2 text-sm">

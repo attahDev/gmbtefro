@@ -22,7 +22,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (form: RegisterForm) => Promise<{ user: User; verification_token: string }>;
+  register: (form: RegisterForm) => Promise<{ user: User; verification_token: string; emailSent: boolean }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<User>;
 }
@@ -195,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Invalid registration response');
     }
 
-    const { user, verification_token } = registerResponse.data;
+    const { user, verification_token, emailSent } = registerResponse.data;
 
     if (!user || !verification_token) {
       throw new Error('Incomplete registration response');
@@ -205,9 +205,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // ❌ DO NOT fetch profile
     // ❌ DO NOT authenticate user
 
-    toast.success("Account created. Please check your email to verify your account.");
+    if (emailSent === false) {
+      // Account exists, but the verification email genuinely failed to
+      // send (SMTP issue on the backend) — don't tell them to check an
+      // inbox that's never getting anything.
+      toast.error("Account created, but we couldn't send the verification email. Please use \"Resend code\" on the next screen.");
+    } else {
+      toast.success("Account created. Please check your email to verify your account.");
+    }
 
-    return { user, verification_token };
+    return { user, verification_token, emailSent: emailSent !== false };
   } catch (error) {
     handleAuthError(error);
     throw error;

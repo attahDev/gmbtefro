@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import { Search, Sparkles } from 'lucide-react'
 
 const CHIPS = [
-  { emoji: '🌿', label: 'Sustainable Fashion Africa' },
-  { emoji: '⚡', label: 'EV Market Nigeria' },
-  { emoji: '🏦', label: 'Fintech West Africa' },
+  { emoji: '🌿', label: 'Sustainable Fashion UK' },
+  { emoji: '⚡', label: 'EV Market UK' },
+  { emoji: '🏦', label: 'Fintech Manchester' },
   { emoji: '🤖', label: 'AI SaaS Trends' },
   { emoji: '🎓', label: 'EdTech Growth' },
 ]

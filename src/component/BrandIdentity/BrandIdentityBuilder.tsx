@@ -91,10 +91,10 @@ const tools: ToolConfig[] = [
       { id: "role", label: "Job Title / Role", placeholder: "e.g. CEO" },
       { id: "company", label: "Company Name", placeholder: "e.g. GM Black Tech Expo" },
       { id: "email", label: "Email Address", placeholder: "e.g. kate@company.com" },
-      { id: "phone", label: "Phone", placeholder: "e.g. +234 800 000 0000" },
+      { id: "phone", label: "Phone", placeholder: "e.g. +44 800 000 0000" },
       { id: "website", label: "Website", placeholder: "e.g. www.company.com", optional: true },
       { id: "industry", label: "Industry", placeholder: "e.g. Technology", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
     ],
   },
   {
@@ -133,12 +133,12 @@ const tools: ToolConfig[] = [
     logoUpload: true,
     fields: [
       { id: "company", label: "Company Name" },
-      { id: "address", label: "Company Address", placeholder: "12 Tech Street, Lagos" },
+      { id: "address", label: "Company Address", placeholder: "12 Tech Street, Manchester" },
       { id: "email", label: "Email" },
       { id: "phone", label: "Phone" },
       { id: "website", label: "Website", optional: true },
       { id: "tagline", label: "Tagline", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
       { id: "social", label: "Social / Website Link", placeholder: "e.g. linkedin.com/company/acme", optional: true },
       {
         id: "body",
@@ -165,7 +165,7 @@ const tools: ToolConfig[] = [
       { id: "email", label: "Email" },
       { id: "phone", label: "Phone" },
       { id: "social", label: "LinkedIn / Social", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
     ],
   },
   {
@@ -185,10 +185,10 @@ const tools: ToolConfig[] = [
         id: "currency",
         label: "Currency",
         type: "select",
-        options: ["NGN ₦", "USD $", "GBP £", "EUR €", "ZAR R"],
+        options: ["GBP £", "USD $", "EUR €", "NGN ₦", "ZAR R"],
       },
       { id: "website", label: "Website", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
       { id: "invoicePrefix", label: "Invoice Number Prefix", placeholder: "e.g. INV-", optional: true },
       { id: "taxRate", label: "Tax Rate (%)", placeholder: "e.g. 7.5", optional: true },
       { id: "discount", label: "Discount Amount", placeholder: "e.g. 50", optional: true },
@@ -215,12 +215,12 @@ const tools: ToolConfig[] = [
         id: "currency",
         label: "Currency",
         type: "select",
-        options: ["NGN ₦", "USD $", "GBP £", "EUR €", "ZAR R"],
+        options: ["GBP £", "USD $", "EUR €", "NGN ₦", "ZAR R"],
       },
       { id: "validity", label: "Quote Valid For", placeholder: "e.g. 30 days" },
       { id: "expirationDate", label: "Expiration Date", placeholder: "e.g. 2026-08-30", optional: true },
       { id: "preparedBy", label: "Prepared By", placeholder: "e.g. Kate Johnson", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
       { id: "deliveryRequired", label: "Delivery Required", type: "checkbox", optional: true },
       { id: "packagingRequired", label: "Packaging Required", type: "checkbox", optional: true },
       { id: "signatureSection", label: "Include Signature Section", type: "checkbox", optional: true },
@@ -245,7 +245,7 @@ const tools: ToolConfig[] = [
       { id: "mission", label: "Mission Statement", type: "textarea", full: true, optional: true },
       { id: "tagline", label: "Tagline", optional: true },
       { id: "yearFounded", label: "Year Founded", placeholder: "e.g. 2018", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
       {
         id: "teamMembers",
         label: "Team Members",
@@ -273,7 +273,7 @@ const tools: ToolConfig[] = [
       { id: "difference", label: "What makes you different?", type: "textarea", full: true },
       { id: "contact", label: "Contact Info" },
       { id: "clients", label: "Past Clients / Experience", type: "textarea", full: true, optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
       { id: "dunsNumber", label: "DUNS Number", placeholder: "e.g. 123456789", optional: true },
       { id: "cageCode", label: "CAGE Code", placeholder: "e.g. 1A2B3", optional: true },
       {
@@ -324,7 +324,7 @@ const tools: ToolConfig[] = [
       { id: "audience", label: "Target Audience", full: true },
       { id: "personality", label: "Brand Personality", full: true },
       { id: "fonts", label: "Preferred Fonts", optional: true },
-      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. RC-123456", optional: true },
+      { id: "registrationNumber", label: "Company Registration Number", placeholder: "e.g. 12345678 (Companies House)", optional: true },
     ],
   },
 ];
@@ -461,7 +461,7 @@ function buildPayload(
         company_address: values.address,
         email: values.email,
         phone: values.phone,
-        currency: values.currency || "NGN ₦",
+        currency: values.currency || "GBP £",
         website: values.website,
         registration_number: values.registrationNumber,
         invoice_number_prefix: values.invoicePrefix || undefined,
@@ -491,7 +491,7 @@ function buildPayload(
         packaging_required: parseBool(values.packagingRequired),
         signature_section: parseBool(values.signatureSection) ?? true,
         registration_number: values.registrationNumber,
-        currency: values.currency || "NGN ₦",
+        currency: values.currency || "GBP £",
         logo_url,
         primary_color,
         secondary_color,
@@ -1363,7 +1363,7 @@ function Preview({
   const role = values.role || "Your Role";
   const company = values.company || "Your Company";
   const email = values.email || "hello@company.com";
-  const phone = values.phone || "+234 800 000 0000";
+  const phone = values.phone || "+44 800 000 0000";
   const initials = company
     .split(" ")
     .map((word) => word[0])

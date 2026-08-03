@@ -28,7 +28,7 @@ export default function RawForm({ values, onChange }) {
         </label>
         <textarea
           className={`${inputClass} min-h-[220px] resize-y`}
-          placeholder={`Paste anything here. For example:\n\n- Want to help farmers sell directly\n- Big problem is middlemen taking too much\n- Tested in Lagos and Kano\n- 200 farmers signed up so far\n- Made $12k GMV in pilot\n- Team is 4 people, 2 engineers\n- Need $500k to expand to 3 more states...`}
+          placeholder={`Paste anything here. For example:\n\n- Want to help farmers sell directly\n- Big problem is middlemen taking too much\n- Tested in Manchester and Leeds\n- 200 farmers signed up so far\n- Made $12k GMV in pilot\n- Team is 4 people, 2 engineers\n- Need $500k to expand to 3 more states...`}
           value={values.notes || ""}
           onChange={(e) => onChange({ ...values, notes: e.target.value })}
           rows={12}

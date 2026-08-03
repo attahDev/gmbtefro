@@ -223,7 +223,7 @@ export default function DashboardHero({
 
             <InputField
               label="Location"
-              placeholder="e.g. United Kingdom, Nigeria"
+              placeholder="e.g. United Kingdom, Global"
               value={form.location}
               onChange={(value) => updateField("location", value)}
             />

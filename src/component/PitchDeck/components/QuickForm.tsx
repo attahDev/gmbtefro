@@ -28,7 +28,7 @@ export default function QuickForm({ values, onChange }) {
         </label>
         <textarea
           className={`${inputClass} min-h-[120px] resize-y`}
-          placeholder="e.g. A mobile marketplace connecting smallholder farmers in West Africa directly to buyers, cutting out middlemen and increasing farmer income by up to 40%."
+          placeholder="e.g. A mobile marketplace connecting independent farm shops in the UK directly to buyers, cutting out middlemen and increasing farm-shop income by up to 40%."
           value={values.idea || ""}
           onChange={(e) => onChange({ ...values, idea: e.target.value })}
           rows={5}

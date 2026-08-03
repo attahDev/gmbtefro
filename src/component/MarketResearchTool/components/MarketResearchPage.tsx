@@ -7,8 +7,8 @@ import AnalyzingPanel from './AnalyzingPanel'
 import ResultsPanel from './ResultsPanel'
 
 const EXAMPLE_CARDS = [
-  { emoji: '🌿', title: 'Sustainable Fashion', desc: 'Market size, trends & opportunities in Africa' },
-  { emoji: '🏦', title: 'Fintech in West Africa', desc: 'Growth drivers, players & entry points' },
+  { emoji: '🌿', title: 'Sustainable Fashion', desc: 'Market size, trends & opportunities in the UK' },
+  { emoji: '🏦', title: 'Fintech in the UK', desc: 'Growth drivers, players & entry points' },
   { emoji: '🤖', title: 'AI SaaS Trends', desc: 'Demand signals, competition & niches' },
 ]
 

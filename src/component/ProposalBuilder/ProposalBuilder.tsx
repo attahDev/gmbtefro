@@ -888,7 +888,7 @@ export default function ProposalBuilder() {
                 className={`${INPUT_CLASS} min-h-[110px] resize-y`}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g. A web and mobile app development project for a fintech startup in Lagos. The project includes building a user management dashboard with React and Node.js. Budget is around $15,000..."
+                placeholder="e.g. A web and mobile app development project for a fintech startup in London. The project includes building a user management dashboard with React and Node.js. Budget is around £12,000..."
               />
             </div>
 
