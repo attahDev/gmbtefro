@@ -6,7 +6,7 @@ import MREmpty from './MREmpty'
 import MRResultHero from './MRHero'
 import MRPreviousReports from './MRPreviousReport'
 import MRTargetAudience from './MRTargetAudience'
-import { getIdea, type IdeaContent } from '../lib/ideaEngineApi'
+import { getIdea, listIdeas, type IdeaContent } from '../lib/ideaEngineApi'
 import { getCurrentIdeaId, setCurrentIdeaId } from '../lib/currentIdea'
 
 export const MRDashboardSection = () => {
@@ -17,7 +17,7 @@ export const MRDashboardSection = () => {
 
   const loadIdea = (id: string) => {
     setLoading(true)
-    getIdea(id)
+    return getIdea(id)
       .then((idea) => {
         setContent(idea.content)
         setIdeaId(idea.id)
@@ -30,11 +30,19 @@ export const MRDashboardSection = () => {
 
   useEffect(() => {
     const current = getCurrentIdeaId()
-    if (!current) {
-      setLoading(false)
+    if (current) {
+      loadIdea(current)
       return
     }
-    loadIdea(current)
+    // No session-scoped "current" idea (fresh tab, cleared session, etc.)
+    // but the user may still have saved history — fall back to the most
+    // recent one instead of showing the empty state.
+    listIdeas()
+      .then((ideas) => {
+        if (ideas.length > 0) return loadIdea(ideas[0].id)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
   if (loading) {

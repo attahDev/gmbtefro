@@ -24,6 +24,7 @@ export type BusinessPlanHistoryItem = {
   location: string;
   experienceLevel: string;
   goal: string;
+  sourceIdeaId: string | null;
   aiResponse: any;
   completedActionIndexes: number[];
   createdAt: string;

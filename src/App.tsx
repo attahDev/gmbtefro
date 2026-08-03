@@ -224,8 +224,6 @@ function AppLayout() {
                 </Suspense>
               }
             />
-
-
             <Route path="opportunity-insights" element={<MRDashboardSection />} />
             <Route path="business-plan" element={<BPTabs />} />
             <Route path="business-plan/:planId" element={<BPTabs />} />

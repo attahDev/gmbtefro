@@ -33,46 +33,59 @@ export default function BPTabs() {
   const [initialCompletedIndexes, setInitialCompletedIndexes] = useState<number[]>([])
 
   useEffect(() => {
-    if (!routePlanId) return
     let cancelled = false
-    getBusinessPlanById(routePlanId)
-      .then((plan) => {
-        if (cancelled) return
-        setPlanId(plan.id)
-        setInitialCompletedIndexes(plan.completedActionIndexes || [])
-      })
-      .catch(() => {
-        /* invalid/inaccessible plan id — checkboxes just start unchecked */
-      })
+
+    const loadContentFromIdea = (ideaId: string) =>
+      getIdea(ideaId)
+        .then((idea) => {
+          if (!cancelled) {
+            setContent(idea.content)
+            setHasIdea(true)
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setHasIdea(false)
+        })
+
+    const run = async () => {
+      if (routePlanId) {
+        // Viewing a specific saved plan (from history, a shared link, or a
+        // fresh session on another device) — planId in the URL is the
+        // source of truth. Load the plan once, then load the idea it was
+        // actually built from via sourceIdeaId, the real cross-session
+        // link. Falling back to whatever idea happens to be cached in this
+        // browser's sessionStorage would show the wrong plan's content.
+        try {
+          const plan = await getBusinessPlanById(routePlanId)
+          if (cancelled) return
+          setPlanId(plan.id)
+          setInitialCompletedIndexes(plan.completedActionIndexes || [])
+          if (plan.sourceIdeaId) {
+            await loadContentFromIdea(plan.sourceIdeaId)
+          } else {
+            setHasIdea(false)
+          }
+        } catch {
+          if (!cancelled) setHasIdea(false)
+        }
+      } else {
+        const ideaId = getCurrentIdeaId()
+        if (!ideaId) {
+          setHasIdea(false)
+        } else {
+          await loadContentFromIdea(ideaId)
+        }
+      }
+    }
+
+    run().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
+
     return () => {
       cancelled = true
     }
   }, [routePlanId])
-
-  useEffect(() => {
-    const ideaId = getCurrentIdeaId()
-    if (!ideaId) {
-      setLoading(false)
-      return
-    }
-    let cancelled = false
-    getIdea(ideaId)
-      .then((idea) => {
-        if (!cancelled) {
-          setContent(idea.content)
-          setHasIdea(true)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setHasIdea(false)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   if (loading) {
     return <div className="min-h-screen bg-[#F2F2EE]" />

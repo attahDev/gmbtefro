@@ -7,8 +7,8 @@ import IGPreviousIdeas from './IGPreviousIdeas'
 import IGResultHero from './IGResultHero'
 import IGRevenueChart from './IGRevenueChart'
 import IGScoreBreakdown from './IGScoreBreakdown'
-import { getIdea, type IdeaContent } from '../lib/ideaEngineApi'
-import { getCurrentIdeaId } from '../lib/currentIdea'
+import { getIdea, listIdeas, type IdeaContent } from '../lib/ideaEngineApi'
+import { getCurrentIdeaId, setCurrentIdeaId } from '../lib/currentIdea'
 
 export const IGDashboardSection = () => {
   const [content, setContent] = useState<IdeaContent | undefined>(undefined)
@@ -16,25 +16,39 @@ export const IGDashboardSection = () => {
   const [hasIdea, setHasIdea] = useState(false)
 
   useEffect(() => {
-    const ideaId = getCurrentIdeaId()
-    if (!ideaId) {
-      setLoading(false)
-      return
-    }
     let cancelled = false
-    getIdea(ideaId)
-      .then((idea) => {
-        if (!cancelled) {
-          setContent(idea.content)
-          setHasIdea(true)
-        }
+
+    const loadIdea = (ideaId: string) =>
+      getIdea(ideaId).then((idea) => {
+        if (cancelled) return
+        setContent(idea.content)
+        setCurrentIdeaId(idea.id)
+        setHasIdea(true)
       })
-      .catch(() => {
-        if (!cancelled) setHasIdea(false)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
+
+    const ideaId = getCurrentIdeaId()
+
+    const fallbackToHistory = () =>
+      listIdeas()
+        .then((ideas) => {
+          if (cancelled || ideas.length === 0) return
+          // No session-scoped "current" idea (fresh tab, cleared session, etc.)
+          // but the user does have saved history — load the most recent one
+          // instead of showing the empty state.
+          return loadIdea(ideas[0].id)
+        })
+        .catch(() => {
+          /* no saved ideas or history fetch failed — empty state is correct */
+        })
+
+    const chain = ideaId
+      ? loadIdea(ideaId).catch(() => fallbackToHistory())
+      : fallbackToHistory()
+
+    chain.finally(() => {
+      if (!cancelled) setLoading(false)
+    })
+
     return () => {
       cancelled = true
     }
